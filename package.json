@@ -1,0 +1,31 @@
+{
+  "name": "understream",
+  "version": "0.0.1",
+  "description": "stream helpers",
+  "engines": {
+    "node": ">=0.8.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "make -B test",
+    "test-cov": "make -B test-cov"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD",
+  "dependencies": {
+    "debug": "~0.7.2",
+    "underscore": "~1.4.4",
+    "coffee-script": "~1.4.0",
+    "async": "~0.2.5",
+    "writable-stream-parallel": "~0.1.0",
+    "readable-stream": "~1.0.2",
+    "sqlite3": "~2.1.7",
+    "csv": "~0.3.0"
+  },
+  "devDependencies": {
+    "sinon": "~1.5.2",
+    "mocha": "~1.9.0",
+    "temp": "~0.5.0"
+  }
+}
