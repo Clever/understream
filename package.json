@@ -16,12 +16,12 @@
   "dependencies": {
     "debug": "~0.7.2",
     "underscore": "~1.4.4",
-    "coffee-script": "~1.4.0",
     "async": "~0.2.5",
     "writable-stream-parallel": "~0.1.0",
     "readable-stream": "~1.0.2",
     "sqlite3": "~2.1.7",
-    "csv": "~0.3.0"
+    "csv": "~0.3.0",
+    "coffee-script": "~1.6.2"
   },
   "devDependencies": {
     "sinon": "~1.5.2",
