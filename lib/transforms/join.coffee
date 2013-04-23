@@ -71,11 +71,11 @@ class Join extends Transform
 
   _do_join: (obj, cb) =>
     key = @options.as or @options.on
-    return cb(null, obj) unless obj[key]? and match = @hash.cache[obj[key]] # TODO: error?
-    if _(match).isArray()
-      obj[k] = match
-    else
-      obj[k] = v for k, v of match
+    match = @hash.cache[obj[key]]
+    if not match and @options.unset
+      delete obj[key]
+    return cb(null, obj) unless obj[key]? and match
+    obj[k] = v for k, v of match
     cb null, obj
 
   _transform: (chunk, encoding, cb) =>
