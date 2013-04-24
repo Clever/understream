@@ -96,29 +96,3 @@ describe '_.join', ->
       ]
       done()
     .run assert.ifError
-
-  # it 'joins two json streams, and handles multiple values and undefined values', (done) ->
-  #   join_ustream = _([{d:1, b:11}, {d:1, b: 22}, {d:2, b: 33}]).stream().stream()
-  #   _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
-  #   .join({ from: join_ustream, on: 'd', select: 'b' }).value (data) ->
-  #     assert.deepEqual data, [
-  #       {d: 1, e: 2, a: 1, b: [11, 22]}
-  #       {d: 2, e: 3, a: 1, b: 33}
-  #       {d: 3, e: 4, a: 2}
-  #       {d: 4, e: 5, a: 2}
-  #     ]
-  #     done()
-  #   .run assert.ifError
-
-  # it 'joins two json streams, and handles multiple values and undefined values, forcing lists', (done) ->
-  #   join_ustream = _([{d:1, b:11}, {d:1, b: 22}, {d:2, b: 33}]).stream().stream()
-  #   _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
-  #   .join({ from: join_ustream, on: 'd', select: {'b':['b']} }).value (data) ->
-  #     assert.deepEqual data, [
-  #       {d: 1, e: 2, a: 1, b: [11, 22]}
-  #       {d: 2, e: 3, a: 1, b: [33]}
-  #       {d: 3, e: 4, a: 2}
-  #       {d: 4, e: 5, a: 2}
-  #     ]
-  #     done()
-  #   .run assert.ifError
