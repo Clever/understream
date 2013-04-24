@@ -45,15 +45,6 @@ class HashAccumulator extends Writable
 
   finished: () => @_writableState.finished
 
-  store: (key, value) =>
-    if not @cache[key]?
-      @cache[key] = value
-    else
-      # object already here..., merge them
-      for k, v of value
-        @cache[key][k] = [@cache[key][k]] unless _(@cache[key][k]).isArray()
-        @cache[key][k].push v
-
   _write: (obj, encoding, cb) =>
     @_hash ?= hash_fn false, @options.on
     hash = @_hash obj
