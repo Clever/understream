@@ -1,0 +1,20 @@
+assert = require 'assert'
+async  = require 'async'
+_      = require 'underscore'
+_.mixin require("#{__dirname}/../index").exports()
+sinon  = require 'sinon'
+stream = require 'stream'
+util = require 'util'
+
+describe '_.groupBy', ->
+  it 'fn', (done) ->
+    _([1.3, 2.1, 2.4]).stream().groupBy(Math.floor).value (data) ->
+      assert.deepEqual data, [{1: [1.3], 2: [2.1, 2.4]}]
+      done()
+    .run assert.ifError
+
+  it 'string', (done) ->
+    _(['one', 'two', 'three']).stream().groupBy('length').value (data) ->
+      assert.deepEqual [{3: ["one", "two"], 5: ["three"]}], data
+      done()
+    .run assert.ifError
