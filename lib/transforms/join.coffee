@@ -72,6 +72,8 @@ class Join extends Transform
   _do_join: (obj, cb) =>
     key = @options.as or @options.on
     match = @hash.cache[obj[key]]
+    if not match and @options.filter
+      return cb()
     if not match and @options.unset
       delete obj[key]
     return cb(null, obj) unless obj[key]? and match
