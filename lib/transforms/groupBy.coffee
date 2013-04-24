@@ -11,7 +11,10 @@ class GroupBy extends Transform
   _flush: (cb) =>
     val = _(@_buffer).groupBy(@options.fn)
     @_buffer = null # i don't trust gc
-    @push val
+    if @options.unpack
+      @push _.object([[k,v]]) for k, v of val
+    else
+      @push val
     cb()
   _transform: (chunk, encoding, cb) =>
     @_buffer.push chunk
