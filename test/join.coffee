@@ -86,6 +86,19 @@ describe '_.join', ->
       done()
     .run assert.ifError
 
+  it 'joins two json streams on potentially different keys, selecting a subset of renamed fields, filtering if no match', (done) ->
+    # test default behavior
+    join_ustream = _([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}]).stream()
+    _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: ''}]).stream()
+    .join({ from: join_ustream.stream(), on: 'z', as: 'a', select: {'b': 'b_','c': 'c_'}, filter: true}).value (data) ->
+      assert.deepEqual data, [
+        {d: 1, e: 2, a: 1, b_: 11, c_: 22}
+        {d: 2, e: 3, a: 1, b_: 11, c_: 22}
+        {d: 3, e: 4, a: 2, b_: 22, c_: 44}
+      ]
+      done()
+    .run assert.ifError
+
   it 'joins two json streams, and handles multiple values and undefined values', (done) ->
     join_ustream = _([{d:1, b:11}, {d:1, b: 22}, {d:2, b: 33}]).stream().stream()
     _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
