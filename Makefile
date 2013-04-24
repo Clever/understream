@@ -11,4 +11,4 @@ test-cov:
 
 test:
 	# not working: errors
-	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --compilers coffee:coffee-script test/{test,csv,sqlite,join,mixin,groupBy}.coffee
+	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --compilers coffee:coffee-script test/{test,csv,sqlite,join,mixin,groupBy,reduce}.coffee
