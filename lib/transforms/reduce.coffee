@@ -6,12 +6,23 @@ class Reduce extends Transform
   constructor: (@options) ->
     # TODO @options._async = _(@options).isFunction and @options.fn.length is 2
     super _(@options).extend { objectMode: true, highWaterMark: 1000 }
-    @_val = @options.base
+    if @options.key?
+      @_val = {}
+    else
+      @_val = _(@options).result 'base'
   _flush: (cb) =>
-    @push @_val
+    if @options.key?
+      @push val for val in _(@_val).values()
+    else
+      @push @_val
     cb()
   _transform: (chunk, encoding, cb) =>
-    @_val = @options.fn @_val, chunk
+    if @options.key?
+      key = @options.key chunk
+      @_val[key] ?= _(@options).result 'base'
+      @_val[key] = @options.fn @_val[key], chunk
+    else
+      @_val = @options.fn @_val, chunk
     cb()
 
 module.exports = (Understream) ->
