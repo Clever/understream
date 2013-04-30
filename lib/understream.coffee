@@ -14,7 +14,6 @@ construct = (constructor, args) ->
 class ArrayStream extends Readable
   constructor: (@options, @arr, @index=0) ->
     super _(@options).extend objectMode: true
-    # @emit 'end' if @arr.length is @index
   _read: (size) =>
     debug "_read #{size} #{JSON.stringify @arr[@index]}"
     @push @arr[@index++] # note: push(null) signals the end of the stream, so this just works^tm
@@ -25,11 +24,13 @@ class DevNull extends Writable
 
 class Understream
   constructor: (@read_stream) ->
+    @defaults = { highWaterMark: 1000, objectMode: true }
     if _(@read_stream).isArray()
       @read_stream = new ArrayStream {}, @read_stream
       @read_streams = [@read_stream]
     else if not @read_stream?
       @read_streams = []
+  defaults: (@defaults) =>
   run: (cb) =>
     throw new Error 'Understream::run requires an error handler' unless _(cb).isFunction()
     report = () =>
@@ -58,27 +59,25 @@ class Understream
   stream: () => @read_stream # if you want to get out of understream and access the raw stream
   @mixin: (ReadableStreamKlass, name=ReadableStreamKlass.name) ->
     Understream::[name] = () ->
-      _(arguments[0]).extend { highWaterMark: 1000 }
-      instance = construct ReadableStreamKlass, arguments
+      # if argument length is < constructor length, prepend defaults to arguments list
+      args = _(arguments).toArray()
+      if args.length is ReadableStreamKlass.length - 1
+        args = [@defaults].concat args
+      else if args.length is ReadableStreamKlass.length
+        _(args[0]).defaults @defaults
+      else
+        throw new Error "Expected #{ReadableStreamKlass.length} or #{ReadableStreamKlass.length-1} arguments to #{name}, got #{args.length}"
+      instance = construct ReadableStreamKlass, args
       @read_stream = instance
       @read_streams.push @read_stream
       debug 'created', @read_stream.constructor.name, @read_streams.length
       @
 
-_(fs.readdirSync("#{__dirname}/transforms")).each (transform) ->
-  ext = if process.env.TEST_UNDERSTREAM_COV then 'js' else 'coffee'
-  match = transform.match(new RegExp("^([^\\.]\\S+)\\\.#{ext}$")) # Exclude hidden files and non-coffee files
-  require("#{__dirname}/transforms/#{transform}") Understream if match
-
-_(fs.readdirSync("#{__dirname}/readables")).each (readable) ->
-  ext = if process.env.TEST_UNDERSTREAM_COV then 'js' else 'coffee'
-  match = readable.match(new RegExp("^([^\\.]\\S+)\\\.#{ext}$")) # Exclude hidden files and non-coffee files
-  require("#{__dirname}/readables/#{readable}") Understream if match
-
-_(fs.readdirSync("#{__dirname}/writables")).each (readable) ->
-  ext = if process.env.TEST_UNDERSTREAM_COV then 'js' else 'coffee'
-  match = readable.match(new RegExp("^([^\\.]\\S+)\\\.#{ext}$")) # Exclude hidden files and non-coffee files
-  require("#{__dirname}/writables/#{readable}") Understream if match
+_(["#{__dirname}/transforms", "#{__dirname}/readables", "#{__dirname}/writables"]).each (dir) ->
+  _(fs.readdirSync(dir)).each (filename) ->
+    ext = if process.env.TEST_UNDERSTREAM_COV then 'js' else 'coffee'
+    match = filename.match(new RegExp("^([^\\.]\\S+)\\\.#{ext}$")) # Exclude hidden files and non-coffee files
+    require("#{dir}/#{filename}") Understream if match
 
 module.exports =
   exports: () ->

@@ -3,10 +3,10 @@ _      = require 'underscore'
 debug  = require('debug') 'us:each'
 
 class Each extends Transform
-  constructor: (@options) ->
+  constructor: (@stream_opts, @options) ->
+    super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
     @options._async = @options.fn.length is 2
-    super _(@options).extend { objectMode: true, highWaterMark: 1000 }
   _transform: (chunk, encoding, cb) =>
     if @options._async
       @options.fn chunk, (err) =>

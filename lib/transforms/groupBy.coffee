@@ -3,10 +3,10 @@ _      = require 'underscore'
 debug  = require('debug') 'us:each'
 
 class GroupBy extends Transform
-  constructor: (@options) ->
+  constructor: (@stream_opts, @options) ->
+    super @stream_opts
     @options = { fn: @options } if _(@options).isFunction() or _(@options).isString()
     # TODO @options._async = _(@options).isFunction and @options.fn.length is 2
-    super _(@options).extend { objectMode: true, highWaterMark: 1000 }
     @_buffer = []
   _flush: (cb) =>
     val = _(@_buffer).groupBy(@options.fn)

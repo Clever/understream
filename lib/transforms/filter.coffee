@@ -3,10 +3,10 @@ _      = require 'underscore'
 debug  = require('debug') 'us:filter'
 
 class Filter extends Transform
-  constructor: (@options) ->
+  constructor: (@stream_opts, @options) ->
+    super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
     @options._async = true if @options.fn.length is 2
-    super _(@options).extend objectMode: true
   _transform: (chunk, encoding, cb) =>
     if @options._async
       @options.fn chunk, (err, result) =>

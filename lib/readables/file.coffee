@@ -4,9 +4,9 @@ debug  = require('debug') 'us:file'
 fs = require 'fs'
 
 class File extends Readable
-  constructor: (path) ->
-    super { highWaterMark: 1000 }
-    @wrap fs.createReadStream(path)
+  constructor: (@stream_opts, path, options) ->
+    super @stream_opts
+    @wrap fs.createReadStream(path, options)
 
 module.exports = (Understream) ->
   Understream.mixin File, 'file'

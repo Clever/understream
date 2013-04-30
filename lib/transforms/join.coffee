@@ -32,7 +32,8 @@ hash_fn = (source, onn) ->
     ).join '|'
 
 class HashAccumulator extends Writable
-  constructor: (@options) ->
+  constructor: (@stream_opts, @options) ->
+    super @stream_opts
     @cache = {}
     int = setInterval () =>
       debug 'hash:cache size', _(@cache).keys().length
@@ -41,7 +42,6 @@ class HashAccumulator extends Writable
       debug "hash:finish size=#{_(@cache).keys().length}"
       clearInterval int
     @options.from.pipe @
-    super _(@options).extend objectMode: true
 
   finished: () => @_writableState.finished
 
@@ -66,7 +66,8 @@ class HashAccumulator extends Writable
     cb()
 
 class Join extends Transform
-  constructor: (@options) ->
+  constructor: (@stream_opts, @options) ->
+    super @stream_opts
     # default to inner join
     for required in ['from', 'on']
       throw new Error "Join requires a '#{required}' argument" unless @options[required]
@@ -75,8 +76,7 @@ class Join extends Transform
     @options.select = [@options.select] if @options.select? and not _(@options.select).isArray()
     # todo: validate each @options.on is either a string or single {k:v}
     throw new Error "'from' must be pipeable" unless _(@options.from.pipe).isFunction()
-    @hash = new HashAccumulator @options
-    super _(@options).extend objectMode: true
+    @hash = new HashAccumulator @stream_opts, @options
 
     # buffer data until the stream we're joining on finishes
     @_buffer = []

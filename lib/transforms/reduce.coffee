@@ -3,9 +3,9 @@ _      = require 'underscore'
 debug  = require('debug') 'us:each'
 
 class Reduce extends Transform
-  constructor: (@options) ->
+  constructor: (@stream_opts, @options) ->
+    super @stream_opts
     # TODO @options._async = _(@options).isFunction and @options.fn.length is 2
-    super _(@options).extend { objectMode: true, highWaterMark: 1000 }
     if @options.key?
       @_val = {}
     else

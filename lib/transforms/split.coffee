@@ -3,9 +3,9 @@ _      = require 'underscore'
 debug  = require('debug') 'us:split'
 
 class Split extends Transform
-  constructor: (@options) ->
+  constructor: (@stream_opts, @options) ->
+    super @stream_opts
     @options = { sep: @options } if _(@options).isString() or @options instanceof RegExp
-    super _(@options).extend { highWaterMark: 1000 }
     @leftover = ''
   _flush: (cb) =>
     @push @leftover
