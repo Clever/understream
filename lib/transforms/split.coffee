@@ -1,6 +1,6 @@
-{Transform} = require 'writable-stream-parallel'
 _      = require 'underscore'
 debug  = require('debug') 'us:split'
+Transform = require 'readable-stream/transform'
 
 class Split extends Transform
   constructor: (@stream_opts, @options) ->
