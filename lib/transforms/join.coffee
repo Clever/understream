@@ -37,10 +37,10 @@ class HashAccumulator extends Writable
     super @stream_opts
     @cache = {}
     int = setInterval () =>
-      debug 'hash:cache size', _(@cache).keys().length
+      debug 'hash:cache size', _(@cache).size()
     , 1000
     @on 'finish', () =>
-      debug "hash:finish size=#{_(@cache).keys().length}"
+      debug "hash:finish size=#{_(@cache).size()}"
       clearInterval int
     @options.from.pipe @
 
