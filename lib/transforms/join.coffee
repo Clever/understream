@@ -1,5 +1,6 @@
 Readable = require 'readable-stream'
-{Writable,Transform} = require 'writable-stream-parallel'
+Writable = require 'readable-stream/writable'
+{Transform} = require 'writable-stream-parallel'
 _      = require 'underscore'
 debug  = require('debug') 'us:join'
 util = require 'util'
