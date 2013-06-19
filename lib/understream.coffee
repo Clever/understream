@@ -47,7 +47,9 @@ class Understream
       clearInterval interval
       cb()
     dmn = domain.create()
-    dmn.on 'error', cb
+    dmn.on 'error', (err) =>
+      clearInterval interval
+      cb err
     dmn.add stream for stream in @read_streams
     dmn.run =>
       debug 'running'
