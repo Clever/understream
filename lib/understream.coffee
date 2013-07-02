@@ -28,6 +28,8 @@ class Understream
     if _(@read_stream).isArray()
       @read_stream = new ArrayStream {}, @read_stream
       @read_streams = [@read_stream]
+    else if @read_stream instanceof Readable
+      @read_streams = [@read_stream]
     else if not @read_stream?
       @read_streams = []
   defaults: (@defaults) =>

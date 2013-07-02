@@ -26,6 +26,16 @@ describe '_.stream', ->
       done()
     .run error_free
 
+  it 'wraps a Readable stream instance', (done) ->
+    input = ['a', 'b', 'c']
+    rs = new Readable objectMode: true
+    rs.push item for item in input
+    rs.push null
+    _(rs).stream().value((result) ->
+      assert.deepEqual input, result
+      done()
+    ).run error_free
+
   it '.each() accepts fn (sync/async), calls it on each chunk, then passes the original chunk along', (done) ->
     input  = [{a:'1', b:'2'},{c:'2', d:'3'}]
     synch  = (chunk) -> null
