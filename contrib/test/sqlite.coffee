@@ -1,12 +1,13 @@
 assert = require 'assert'
 async  = require 'async'
 _      = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
-sinon  = require 'sinon'
+understream = require "#{__dirname}/../../index"
+_.mixin understream.exports()
 stream = require 'stream'
 fs     = require 'fs'
 temp   = require 'temp'
 
+require('../sqlite') understream
 
 describe '_.sqlite', ->
   error_free = (err) ->

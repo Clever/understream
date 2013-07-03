@@ -7,8 +7,8 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "make -B test",
-    "test-cov": "make -B test-cov"
+    "test": "make -Br test test-contrib",
+    "test-cov": "make -Br test-cov"
   },
   "repository": "",
   "author": "",
@@ -19,7 +19,6 @@
     "async": "~0.2.5",
     "writable-stream-parallel": "~0.1.0",
     "readable-stream": "~1.0.2",
-    "sqlite3": "~2.1.7",
     "csv": "~0.3.0",
     "coffee-script": "~1.6.2"
   },
@@ -27,6 +26,7 @@
     "sinon": "~1.5.2",
     "mocha": "~1.9.0",
     "temp": "~0.5.0",
-    "through": "~2.3.4"
+    "through": "~2.3.4",
+    "sqlite3": "~2.1.7"
   }
 }

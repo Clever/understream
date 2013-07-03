@@ -1,17 +1,22 @@
 # usage:
 # `make` or `make test` runs all the tests
 # `make successful_run` runs just that test
-.PHONY=test test-cov
+.PHONY=test test-contrib test-cov
 
 # errors.coffee broken
 TESTS=$(shell cd test && ls *.coffee | grep -v errors | sed s/\.coffee$$//)
+CONTRIB_TESTS=$(shell cd contrib/test && ls *.coffee | sed s/\.coffee$$//)
 
 all: test
 
 test: $(TESTS)
 
+test-contrib: $(CONTRIB_TESTS)
+
 $(TESTS):
 	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --compilers coffee:coffee-script test/$@.coffee
+$(CONTRIB_TESTS):
+	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --compilers coffee:coffee-script contrib/test/$@.coffee
 
 test-cov:
 	# compile lib/ for coverage test
