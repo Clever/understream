@@ -1,4 +1,4 @@
-{Transform} = require 'writable-stream-parallel'
+Transform = require('readable-stream').Transform
 _      = require 'underscore'
 debug  = require('debug') 'us:batch'
 
