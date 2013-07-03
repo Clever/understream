@@ -1,6 +1,6 @@
 {Transform} = require 'writable-stream-parallel'
 _      = require 'underscore'
-debug  = require('debug') 'us:each'
+debug  = require('debug') 'us:reduce'
 
 class Reduce extends Transform
   constructor: (@stream_opts, @options) ->
