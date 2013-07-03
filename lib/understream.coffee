@@ -1,4 +1,4 @@
-{Writable,Transform} = require 'writable-stream-parallel'
+{Writable} = require 'writable-stream-parallel'
 Readable = require 'readable-stream'
 fs     = require('fs')
 _      = require 'underscore'
@@ -61,17 +61,21 @@ class Understream
         @read_streams[i].pipe @read_streams[i+1]
     @
   stream: () => @read_stream # if you want to get out of understream and access the raw stream
-  @mixin: (ReadableStreamKlass, name=ReadableStreamKlass.name) ->
+  @mixin: (FunctionOrReadableStreamKlass, name=ReadableStreamKlass.name, fn=false) ->
     Understream::[name] = () ->
-      # if argument length is < constructor length, prepend defaults to arguments list
-      args = _(arguments).toArray()
-      if args.length is ReadableStreamKlass.length - 1
-        args = [@defaults].concat args
-      else if args.length is ReadableStreamKlass.length
-        _(args[0]).defaults @defaults
+      if fn
+        # allow mixing in of functions like through()
+        instance = FunctionOrReadableStreamKlass.apply null, arguments
       else
-        throw new Error "Expected #{ReadableStreamKlass.length} or #{ReadableStreamKlass.length-1} arguments to #{name}, got #{args.length}"
-      instance = construct ReadableStreamKlass, args
+        # if this is a class and argument length is < constructor length, prepend defaults to arguments list
+        args = _(arguments).toArray()
+        if args.length is FunctionOrReadableStreamKlass.length - 1
+          args = [@defaults].concat args
+        else if args.length is FunctionOrReadableStreamKlass.length
+          _(args[0]).defaults @defaults
+        else
+          throw new Error "Expected #{FunctionOrReadableStreamKlass.length} or #{FunctionOrReadableStreamKlass.length-1} arguments to #{name}, got #{args.length}"
+        instance = construct FunctionOrReadableStreamKlass, args
       @read_stream = instance
       @read_streams.push @read_stream
       debug 'created', @read_stream.constructor.name, @read_streams.length

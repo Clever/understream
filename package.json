@@ -1,6 +1,6 @@
 {
   "name": "understream",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "stream helpers",
   "engines": {
     "node": ">=0.8.x"
@@ -26,6 +26,7 @@
   "devDependencies": {
     "sinon": "~1.5.2",
     "mocha": "~1.9.0",
-    "temp": "~0.5.0"
+    "temp": "~0.5.0",
+    "through": "~2.3.4"
   }
 }
