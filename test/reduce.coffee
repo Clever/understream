@@ -2,9 +2,6 @@ assert = require 'assert'
 async  = require 'async'
 _      = require 'underscore'
 _.mixin require("#{__dirname}/../index").exports()
-sinon  = require 'sinon'
-stream = require 'stream'
-util = require 'util'
 
 describe '_.reduce', ->
   it 'works on numbers', (done) ->
