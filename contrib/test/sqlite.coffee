@@ -3,7 +3,6 @@ async  = require 'async'
 _      = require 'underscore'
 understream = require "#{__dirname}/../../index"
 _.mixin understream.exports()
-stream = require 'stream'
 fs     = require 'fs'
 temp   = require 'temp'
 
