@@ -19,7 +19,6 @@
     "async": "~0.2.5",
     "writable-stream-parallel": "~0.1.0",
     "readable-stream": "~1.0.2",
-    "csv": "~0.3.0",
     "coffee-script": "~1.6.2"
   },
   "devDependencies": {
@@ -27,6 +26,7 @@
     "mocha": "~1.9.0",
     "temp": "~0.5.0",
     "through": "~2.3.4",
-    "sqlite3": "~2.1.7"
+    "sqlite3": "~2.1.7",
+    "csv": "~0.3.0"
   }
 }
