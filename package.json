@@ -1,6 +1,6 @@
 {
   "name": "understream",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "stream helpers",
   "engines": {
     "node": ">=0.8.x"
@@ -12,8 +12,8 @@
     "prepublish": "make build"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/Clever/understream"
+    "type": "git",
+    "url": "https://github.com/Clever/understream"
   },
   "license": "BSD",
   "dependencies": {
