@@ -1,10 +1,15 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:split'
 Transform = require 'readable-stream/transform'
+util = require 'util'
 
 class Split extends Transform
   constructor: (@stream_opts, @options) ->
+    delete @stream_opts.objectMode # must take in strings
     super @stream_opts
+    if not @options? or
+    not (_(@options).isString() or @options instanceof RegExp or _(@options).isObject())
+      throw new Error("Split requires separator")
     @options = { sep: @options } if _(@options).isString() or @options instanceof RegExp
     @leftover = ''
   _flush: (cb) =>
