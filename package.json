@@ -8,19 +8,22 @@
   "main": "index.js",
   "scripts": {
     "test": "make -Br test",
-    "test-cov": "make -Br test-cov"
+    "test-cov": "make -Br test-cov",
+    "prepublish": "make build"
   },
-  "repository": "",
-  "author": "",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Clever/understream"
+  },
   "license": "BSD",
   "dependencies": {
     "debug": "~0.7.2",
     "underscore": "~1.4.4",
     "async": "~0.2.5",
-    "readable-stream": "~1.0.2",
-    "coffee-script": "~1.6.2"
+    "readable-stream": "~1.0.2"
   },
   "devDependencies": {
+    "coffee-script": "~1.6.2",
     "sinon": "~1.5.2",
     "mocha": "~1.9.0",
     "through": "~2.3.4"

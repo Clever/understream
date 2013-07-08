@@ -1,20 +1,24 @@
 # usage:
-# `make` or `make test` runs all the tests
-# `make successful_run` runs just that test
-.PHONY=test test-contrib test-cov
+# `make build` or `make` compiles lib/*.coffee to lib/*.js (for all changed lib/*.coffee)
+# `make lib/transform/each.coffee` compiles just that file to lib-js
+# `make test` runs all the tests
+# `make test/each.coffee` runs just that test
+.PHONY=test test-cov
+TESTS=$(shell find . -regex "^./test\/.*\.coffee\$$")
+LIBS=$(shell find . -regex "^./lib\/.*\.coffee\$$" | sed s/\.coffee$$/\.js/ | sed s/lib/lib-js/)
 
-TESTS=$(shell cd test && ls *.coffee | sed s/\.coffee$$//)
+build: $(LIBS)
 
-all: test
+lib-js/%.js : lib/%.coffee
+	node_modules/coffee-script/bin/coffee --bare -c -o $(@D) $(patsubst lib-js/%,lib/%,$(patsubst %.js,%.coffee,$@))
 
 test: $(TESTS)
 
-$(TESTS):
-	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --compilers coffee:coffee-script test/$@.coffee
+$(TESTS): build
+	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --compilers coffee:coffee-script $@
 
-test-cov:
-	rm -rf lib-js
-	node_modules/coffee-script/bin/coffee -c -o lib-js lib
+test-cov: build
+	# jscoverage only accepts directory arguments so have to rebuild everything
 	rm -rf lib-js-cov
 	jscoverage lib-js lib-js-cov
 	NODE_ENV=test TEST_UNDERSTREAM_COV=1 node_modules/mocha/bin/mocha --compilers coffee:coffee-script -R html-cov test/*.coffee | tee coverage.html
@@ -30,3 +34,6 @@ publish:
 	    git tag -a v$(VERSION) -m "version $(VERSION)"; \
 	    git push --tags; \
 	fi
+
+clean:
+	rm -rf lib-js lib-js-cov

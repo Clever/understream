@@ -83,8 +83,7 @@ class Understream
 
 _(["#{__dirname}/transforms", "#{__dirname}/readables"]).each (dir) ->
   _(fs.readdirSync(dir)).each (filename) ->
-    ext = if process.env.TEST_UNDERSTREAM_COV then 'js' else 'coffee'
-    match = filename.match(new RegExp("^([^\\.]\\S+)\\\.#{ext}$")) # Exclude hidden files and non-coffee files
+    match = filename.match(new RegExp("^([^\\.]\\S+)\\\.js$")) # Exclude hidden files
     require("#{dir}/#{filename}") Understream if match
 
 module.exports =
