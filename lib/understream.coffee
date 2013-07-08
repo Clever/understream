@@ -70,7 +70,7 @@ class Understream
         # if this is a class and argument length is < constructor length, prepend defaults to arguments list
         args = _(arguments).toArray()
         if args.length < FunctionOrReadableStreamKlass.length
-          args = [@defaults].concat args
+          args = [_(@defaults).clone()].concat args
         else if args.length is FunctionOrReadableStreamKlass.length
           _(args[0]).defaults @defaults
         else
