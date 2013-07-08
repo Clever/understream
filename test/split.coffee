@@ -2,6 +2,7 @@ assert = require 'assert'
 _      = require 'underscore'
 _.mixin require("#{__dirname}/../index").exports()
 async = require 'async'
+Readable = require 'readable-stream'
 
 describe '_.split', ->
   it 'requires a sep argument', ->
@@ -26,3 +27,18 @@ describe '_.split', ->
         assert err.message.match /non-string\/buffer chunk/
         cb_fe()
     , done
+
+  [
+    { type: 'string', arg: '\n' }
+    { type: 'regex', arg: /\n/ }
+    { type: 'obj', arg: { sep: '\n' } }
+  ].forEach (arg_spec) ->
+    it "splits with a #{arg_spec.type} argument", (done) ->
+      r = new Readable
+      r.push "1\n2\n3\n"
+      r.push null
+      r._read = () ->
+      _(r).stream().split(arg_spec.arg).value (val) ->
+        assert.deepEqual _(val).map(String), ['1','2','3']
+        done()
+      .run assert.ifError
