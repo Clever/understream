@@ -4,6 +4,10 @@ _.mixin require("#{__dirname}/../index").exports()
 async = require 'async'
 Readable = require 'readable-stream'
 
+# domain_emitter (0.8) vs domainEmitter (0.10)
+domain_emitter = (domain_err) ->
+  domain_err.domain_emitter or domain_err.domainEmitter
+
 describe '_.split', ->
   it 'requires a sep argument', ->
     assert.throws () ->
@@ -23,7 +27,7 @@ describe '_.split', ->
     ]
     async.forEachSeries test_inputs, (test_input, cb_fe) ->
       _(test_input).stream().split("test").run (err) ->
-        assert err.domain_emitter?.options.sep is 'test'
+        assert domain_emitter(err)?.options.sep is 'test'
         assert err.message.match /non-string\/buffer chunk/
         cb_fe()
     , done
