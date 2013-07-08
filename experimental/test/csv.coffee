@@ -1,9 +1,10 @@
 assert = require 'assert'
 async  = require 'async'
 _      = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
-sinon  = require 'sinon'
-stream = require 'stream'
+understream = require "#{__dirname}/../../index"
+_.mixin understream.exports()
+
+require('../csv_line') understream
 
 describe '_.csv', ->
   error_free = (err) -> assert.ifError err

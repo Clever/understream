@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{Transform} = require 'writable-stream-parallel'
+{Transform} = require 'readable-stream'
 class MyAwesomeTransform extends Transform
   constructor: (options) -> super _(options).extend { objectMode: true }
   _transform: (chunk, enc, cb) =>
