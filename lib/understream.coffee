@@ -1,4 +1,4 @@
-{Writable} = require 'writable-stream-parallel'
+{Writable} = require 'readable-stream'
 Readable = require 'readable-stream'
 fs     = require('fs')
 _      = require 'underscore'
