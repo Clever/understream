@@ -4,6 +4,7 @@ _     = require 'underscore'
 _.mixin require("#{__dirname}/../index").exports()
 OldReadable = require 'readable-stream'
 {Readable} = require 'stream'
+unless Readable? then Readable = OldReadable # for node < v0.10
 
 describe '_.stream', ->
 
