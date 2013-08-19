@@ -4,7 +4,7 @@
 # `make test` runs all the tests
 # `make test/each.coffee` runs just that test
 .PHONY=test test-cov
-TESTS=$(shell find . -regex "^./test\/.*\.coffee\$$")
+TESTS=$(shell cd test && ls *.coffee | sed s/\.coffee$$//)
 LIBS=$(shell find . -regex "^./lib\/.*\.coffee\$$" | sed s/\.coffee$$/\.js/ | sed s/lib/lib-js/)
 
 build: $(LIBS)
@@ -15,7 +15,7 @@ lib-js/%.js : lib/%.coffee
 test: $(TESTS)
 
 $(TESTS): build
-	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --compilers coffee:coffee-script $@
+	DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --compilers coffee:coffee-script test/$@.coffee
 
 test-cov: build
 	# jscoverage only accepts directory arguments so have to rebuild everything

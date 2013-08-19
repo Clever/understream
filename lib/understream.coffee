@@ -5,6 +5,10 @@ _      = require 'underscore'
 debug  = require('debug') 'us'
 domain = require 'domain'
 
+implements_interface = (instance, klass) ->
+  unless _.isObject instance then return false
+  _.all _.keys(klass.prototype), (key) -> key of instance
+
 # apply() for constructors
 construct = (constructor, args) ->
   F = -> constructor.apply this, args
@@ -28,10 +32,13 @@ class Understream
     if _(@read_stream).isArray()
       @read_stream = new ArrayStream {}, @read_stream
       @read_streams = [@read_stream]
-    else if @read_stream instanceof Readable
+    else if implements_interface @read_stream, Readable
       @read_streams = [@read_stream]
     else if not @read_stream?
       @read_streams = []
+    else
+      throw new Error 'Understream expects a readable stream, an array, or nothing'
+
   defaults: (@defaults) =>
   run: (cb) =>
     throw new Error 'Understream::run requires an error handler' unless _(cb).isFunction()
@@ -61,7 +68,7 @@ class Understream
         @read_streams[i].pipe @read_streams[i+1]
     @
   stream: () => @read_stream # if you want to get out of understream and access the raw stream
-  @mixin: (FunctionOrReadableStreamKlass, name=ReadableStreamKlass.name, fn=false) ->
+  @mixin: (FunctionOrReadableStreamKlass, name=Readable.name, fn=false) ->
     Understream::[name] = () ->
       if fn
         # allow mixing in of functions like through()

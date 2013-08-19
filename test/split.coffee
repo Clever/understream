@@ -11,13 +11,13 @@ domain_emitter = (domain_err) ->
 describe '_.split', ->
   it 'requires a sep argument', ->
     assert.throws () ->
-      _('').stream().split()
+      _().stream().split()
     , /requires separator/
     assert.throws () ->
-      _('').stream({}).split()
+      _().stream({}).split()
     , /requires separator/
     assert.throws () ->
-      _('').stream({asdf:'asdf'}).split()
+      _().stream({asdf:'asdf'}).split()
     , /requires separator/
 
   it 'must be piped string or buffer data', (done) ->
