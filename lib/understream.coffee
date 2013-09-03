@@ -4,16 +4,19 @@ fs     = require('fs')
 _      = require 'underscore'
 debug  = require('debug') 'us'
 domain = require 'domain'
+{EventEmitter} = require 'events'
 
-implements_interface = (instance, klass) ->
-  unless _.isObject instance then return false
-  _.all _.keys(klass.prototype), (key) -> key of instance
+is_readable = (instance) ->
+  instance? and
+  _.isObject(instance) and
+  instance instanceof EventEmitter and
+  instance?.pipe?
 
 # apply() for constructors
 construct = (constructor, args) ->
   F = -> constructor.apply this, args
   F.prototype = constructor.prototype
-  new F
+  new F()
 
 class ArrayStream extends Readable
   constructor: (@options, @arr, @index=0) ->
@@ -32,7 +35,7 @@ class Understream
     if _(@read_stream).isArray()
       @read_stream = new ArrayStream {}, @read_stream
       @read_streams = [@read_stream]
-    else if implements_interface @read_stream, Readable
+    else if is_readable @read_stream
       @read_streams = [@read_stream]
     else if not @read_stream?
       @read_streams = []
@@ -90,7 +93,7 @@ class Understream
 
 _(["#{__dirname}/transforms", "#{__dirname}/readables"]).each (dir) ->
   _(fs.readdirSync(dir)).each (filename) ->
-    match = filename.match(new RegExp("^([^\\.]\\S+)\\\.js$")) # Exclude hidden files
+    match = filename.match(new RegExp("^([^\.]\\S+)\\.js$")) # Exclude hidden files
     require("#{dir}/#{filename}") Understream if match
 
 module.exports =
