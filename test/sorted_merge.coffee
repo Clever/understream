@@ -71,7 +71,7 @@ describe '_.sorted_merge', ->
       actual = merge_oracle left, right, 'key'
       assert.deepEqual actual, expected
 
-    it "works for a small example:\n#{inspect left},\n#{inspect right}", (done) ->
+    it.skip "works for a small example:\n#{inspect left},\n#{inspect right}", (done) ->
       _.sorted_merge(_.stream(left), _.stream(right), 'key')
         .value (actual) ->
           assert.deepEqual actual, expected
