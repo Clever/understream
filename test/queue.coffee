@@ -37,3 +37,13 @@ describe '_.queue', ->
     _(input).stream().queue(fn).run (err) ->
       assert.equal err, 'some error'
       done()
+
+  it "doesn't end the stream if you return undefined", (done) ->
+    input  = [{a:'1', b:'2'}, {c:'2', d:'3'}]
+    spy = sinon.spy (chunk, cb) -> setTimeout cb, 10
+    _(input).stream().queue(fn: spy, concurrency: 1).value (result) ->
+      assert.deepEqual result, []
+      assert.equal spy.callCount, 2
+      assert.deepEqual spy.args[i][0], input[i] for i in input.length
+      done()
+    .run assert.ifError

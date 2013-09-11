@@ -20,7 +20,7 @@ class Queue extends Transform
         if err
           @end() # End the stream immediately if there's an error
           return cb @_err = err # Store this so that _flush has access to it
-        @push out
+        @push out unless out is undefined
         cb()
     , @options.concurrency
   _docs_in_queue: => @q.length() + @q.running()
