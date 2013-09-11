@@ -3,7 +3,7 @@
 # `make lib/transform/each.coffee` compiles just that file to lib-js
 # `make test` runs all the tests
 # `make test/each.coffee` runs just that test
-.PHONY=test test-cov
+.PHONY: test test-cov
 TESTS=$(shell cd test && ls *.coffee | sed s/\.coffee$$//)
 LIBS=$(shell find . -regex "^./lib\/.*\.coffee\$$" | sed s/\.coffee$$/\.js/ | sed s/lib/lib-js/)
 
