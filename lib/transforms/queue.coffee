@@ -3,6 +3,9 @@ _      = require 'underscore'
 async  = require 'async'
 debug  = require('debug') 'us:queue'
 util   = require 'util'
+timers = require 'timers'
+
+nextTick = timers?.setImmediate or process.nextTick
 
 class Queue extends Transform
   constructor: (@stream_opts, @options) ->
@@ -18,7 +21,7 @@ class Queue extends Transform
   _transform: (chunk, encoding, cb) =>
     async.whilst(
       => @q.length() >= @options.concurrency
-      (cb_w) => setImmediate cb_w
+      (cb_w) => nextTick cb_w
       =>
         @q.push chunk
         cb()
