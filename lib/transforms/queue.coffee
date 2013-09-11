@@ -23,10 +23,11 @@ class Queue extends Transform
         @push out
         cb()
     , @options.concurrency
+  _docs_in_queue: => @q.length() + @q.running()
   _transform: (chunk, encoding, cb) =>
     # If the queue is full, we hold on to the callback to preserve backpressure
     async.whilst(
-      => @q.length() + @q.running() >= @options.concurrency
+      => @_docs_in_queue() >= @options.concurrency
       (cb_w) => nextTick cb_w
       =>
         debug "pushing", chunk
@@ -34,7 +35,7 @@ class Queue extends Transform
         cb()
     )
   _flush: (cb) =>
-    if @q.length() + @q.running() > 0
+    if @_docs_in_queue() > 0
       @q.drain = => cb @_err
     else
       nextTick => cb @_err
