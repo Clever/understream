@@ -14,7 +14,7 @@ describe '_.each', ->
       _(input).stream().each(spy).value (result) ->
         assert.deepEqual input, result
         assert.equal spy.callCount, 2
-        assert.deepEqual spy,args[i][0], input[i] for i in input.length
+        assert.deepEqual spy.args[i][0], input[i] for i in input.length
         cb_fe()
       .run assert.ifError
     , done

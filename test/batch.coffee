@@ -31,4 +31,3 @@ describe '_.batch(n)', ->
       assert.deepEqual data, []
       done()
     .run assert.ifError
-
