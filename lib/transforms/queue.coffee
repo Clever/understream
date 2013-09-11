@@ -19,8 +19,7 @@ class Queue extends Transform
     async.whilst(
       => @q.length() >= @options.concurrency
       (cb_w) => setImmediate cb_w
-      (err) =>
-        return cb err if err?
+      =>
         @q.push chunk
         cb()
     )
