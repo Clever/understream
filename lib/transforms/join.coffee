@@ -4,6 +4,7 @@ Writable = require 'readable-stream/writable'
 _      = require 'underscore'
 debug  = require('debug') 'us:join'
 util = require 'util'
+nextTick = require '../nextTick'
 
 # If you want a quick overview of join semantics, check this out:
 # http://www.codinghorror.com/blog/2007/10/a-visual-explanation-of-sql-joins.html
@@ -111,7 +112,7 @@ class SortedMergeJoin extends Transform
   # ready, and blocks the left stream until we call cb, we need to do all the
   # processing necessary for that item and then call cb.
   _transform: (chunk, enc, cb) ->
-    next = -> process.nextTick cb
+    next = -> nextTick cb
     l = chunk
     while (r = @right.read())?
       if l[@key] > r[@key]
@@ -132,7 +133,7 @@ class SortedMergeJoin extends Transform
   # right stream if there are any leftovers.
   _flush: (cb) ->
     @push r while (r = @right.read())?
-    process.nextTick cb
+    nextTick cb
 
 class Join
   constructor: (@stream_opts, @options) ->
