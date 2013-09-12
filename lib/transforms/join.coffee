@@ -4,6 +4,10 @@ Writable = require 'readable-stream/writable'
 _      = require 'underscore'
 debug  = require('debug') 'us:join'
 util = require 'util'
+nextTick = require '../nextTick'
+
+# If you want a quick overview of join semantics, check this out:
+# http://www.codinghorror.com/blog/2007/10/a-visual-explanation-of-sql-joins.html
 
 # lots of options here:
 # 1. in memory sort merge
@@ -66,17 +70,9 @@ class HashAccumulator extends Writable
     @cache[hash] = data
     cb()
 
-class Join extends Transform
+class HashJoin extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
-    # default to inner join
-    for required in ['from', 'on']
-      throw new Error "Join requires a '#{required}' argument" unless @options[required]
-    _(@options).defaults { type: 'inner' }
-    @options.on = [@options.on] unless _(@options.on).isArray()
-    @options.select = [@options.select] if @options.select? and not _(@options.select).isArray()
-    # todo: validate each @options.on is either a string or single {k:v}
-    throw new Error "'from' must be pipeable" unless _(@options.from.pipe).isFunction()
     @hash = new HashAccumulator @stream_opts, @options
 
     # buffer data until the stream we're joining on finishes
@@ -104,6 +100,62 @@ class Join extends Transform
       @_do_join chunk, cb
     else
       @_buffer.push [chunk, cb]
+
+class SortedMergeJoin extends Transform
+  # This is a kind of tricky version of the usual merge algorithm since we want
+  # to use a Transform stream. The instance itself will function as the left
+  # stream.
+  constructor: (stream_opts, {@right, @key}) ->
+    super stream_opts
+
+  # Since _transform is called each time there's a new left item
+  # ready, and blocks the left stream until we call cb, we need to do all the
+  # processing necessary for that item and then call cb.
+  _transform: (chunk, enc, cb) ->
+    next = -> nextTick cb
+    l = chunk
+    while (r = @right.read())?
+      if l[@key] > r[@key]
+        @push r
+      else if l[@key] < r[@key]
+        @push l
+        # Put r back at the head of right so we can read it again next
+        # _transform or in _flush
+        @right.unshift r
+        return next()
+      else if l[@key] is r[@key]
+        @push _.extend {}, l, r
+        return next()
+    @push l
+    next()
+
+  # _flush is called when the stream is empty, so we need to also empty out the
+  # right stream if there are any leftovers.
+  _flush: (cb) ->
+    @push r while (r = @right.read())?
+    nextTick cb
+
+class Join
+  constructor: (@stream_opts, @options) ->
+    #super @stream_opts
+    # default to inner join
+    for required in ['from', 'on']
+      throw new Error "Join requires a '#{required}' argument" unless @options[required]
+    _(@options).defaults { type: 'inner' }
+    @options.on = [@options.on] unless _(@options.on).isArray()
+    @options.select = [@options.select] if @options.select? and not _(@options.select).isArray()
+    # todo: validate each @options.on is either a string or single {k:v}
+    throw new Error "'from' must be pipeable" unless _(@options.from.pipe).isFunction()
+
+
+    # Sorted merge only currently supported for outer joins
+    if @options.sorted and @options.type is 'outer'
+      return new SortedMergeJoin @stream_opts,
+        right: @options.from
+        key: @options.on
+        type: 'outer' # only type supported so far
+    else
+      return new HashJoin @stream_opts, @options
 
 module.exports = (Understream) ->
   Understream.mixin Join, 'join'

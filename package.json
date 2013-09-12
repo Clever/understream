@@ -18,7 +18,7 @@
   "license": "BSD",
   "dependencies": {
     "debug": "~0.7.2",
-    "underscore": "~1.4.4",
+    "underscore": "~1.5.2",
     "async": "~0.2.5",
     "readable-stream": "~1.0.2"
   },
