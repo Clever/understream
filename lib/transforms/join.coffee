@@ -102,12 +102,6 @@ class HashJoin extends Transform
       @_buffer.push [chunk, cb]
 
 class SortedMergeJoin extends Transform
-  _push = ([l, r]) ->
-    if (@type is 'left' and l?) or
-        (@type is 'right' and r?) or
-        (@type is 'inner' and l? and r?) or
-        (@type is 'outer')
-      @push _.extend {}, l, r
 
   # This is a kind of tricky version of the usual merge algorithm since we want
   # to use a Transform stream. The instance itself will function as the left
@@ -115,33 +109,41 @@ class SortedMergeJoin extends Transform
   constructor: (stream_opts, {@right, @key, @type}) ->
     super stream_opts
 
+  push: (arg) ->
+    # push() still needs to support pushing null
+    unless arg? then return super null
+    [l, r] = arg
+    if (@type is 'left' and l?) or
+        (@type is 'right' and r?) or
+        (@type is 'inner' and l? and r?) or
+        (@type is 'outer')
+      super _.extend {}, l, r
+
   # Since _transform is called each time there's a new left item
   # ready, and blocks the left stream until we call cb, we need to do all the
   # processing necessary for that item and then call cb.
   _transform: (chunk, enc, cb) ->
-    push = _push.bind(@)
     next = -> nextTick cb
     l = chunk
     while (r = @right.read())?
       if l[@key] > r[@key]
-        push [null, r]
+        @push [null, r]
       else if l[@key] < r[@key]
-        push [l, null]
+        @push [l, null]
         # Put r back at the head of right so we can read it again next
         # _transform or in _flush
         @right.unshift r
         return next()
       else if l[@key] is r[@key]
-        push [l, r]
+        @push [l, r]
         return next()
-    push [l, null]
+    @push [l, null]
     next()
 
   # _flush is called when the stream is empty, so we need to also empty out the
   # right stream if there are any leftovers.
   _flush: (cb) ->
-    push = _push.bind(@)
-    push [null, r] while (r = @right.read())?
+    @push [null, r] while (r = @right.read())?
     nextTick cb
 
 class Join
