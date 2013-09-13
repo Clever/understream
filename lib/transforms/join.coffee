@@ -36,6 +36,31 @@ hash_fn = (source, onn) ->
       val
     ).join '|'
 
+# Given two items or nulls, joins them based on the type of join specified.
+# If the objects have common fields, the right object wins.
+join_items = (l, r, type) ->
+  if (type is 'left' and l?) or
+      (type is 'right' and r?) or
+      (type is 'inner' and l? and r?) or
+      (type is 'outer')
+    _.extend {}, l, r
+
+select_fields = (spec, obj) ->
+  # @options.select specifies what to pull out from this obj
+  # select: ['a'] => just 'a'
+  # select: [{'a':'a_'}, 'b'] => pull 'a' as 'a_', 'b' as itself
+  data = {}
+  if (not spec) or (not obj?)
+    data = obj
+  else
+    _(spec).each (sel) =>
+      if _(sel).isString()
+        data[sel] = obj[sel]
+      else
+        data[as] = obj[key] for key, as of sel
+  data
+
+
 class HashAccumulator extends Writable
   constructor: (@stream_opts, @options) ->
     super @stream_opts
@@ -55,23 +80,8 @@ class HashAccumulator extends Writable
     hash = @_hash obj
     if @cache[hash]?
       throw new Error "Duplicate object according to 'on'=#{util.inspect @options.on} prev_match=#{util.inspect @cache[hash]} current_match=#{util.inspect obj}"
-    @cache[hash] = do_select @options.select, obj
+    @cache[hash] = select_fields @options.select, obj
     cb()
-
-do_select = (spec, obj) ->
-  # @options.select specifies what to pull out from this obj
-  # select: ['a'] => just 'a'
-  # select: [{'a':'a_'}, 'b'] => pull 'a' as 'a_', 'b' as itself
-  data = {}
-  if (not spec) or (not obj?)
-    data = obj
-  else
-    _(spec).each (sel) =>
-      if _(sel).isString()
-        data[sel] = obj[sel]
-      else
-        data[as] = obj[key] for key, as of sel
-  data
 
 class HashJoin extends Transform
   constructor: (@stream_opts, @options) ->
@@ -88,14 +98,7 @@ class HashJoin extends Transform
     @_hash ?= hash_fn true, @options.on
     hash = @_hash obj
     match = @hash.cache[hash]
-    if not match?
-      switch @options.type
-        when 'left' then return cb null, obj
-        when 'inner', 'right' then return cb()
-    else
-      # there's a match, so copy over selected fields
-      obj[k] = v for k, v of match
-      cb null, obj
+    cb null, join_items obj, match, @options.type
 
   _transform: (chunk, encoding, cb) =>
     # wait for join stream before joining
@@ -116,11 +119,8 @@ class SortedMergeJoin extends Transform
     # push() still needs to support pushing null
     unless arg? then return super null
     [l, r] = arg
-    if (@type is 'left' and l?) or
-        (@type is 'right' and r?) or
-        (@type is 'inner' and l? and r?) or
-        (@type is 'outer')
-      super _.extend {}, l, do_select(@select, r)
+    joined = join_items l, select_fields(@select, r), @type
+    if joined? then super joined
 
   # Since _transform is called each time there's a new left item
   # ready, and blocks the left stream until we call cb, we need to do all the
