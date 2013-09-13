@@ -147,6 +147,13 @@ describe '_.join again', ->
     expected: [ [l.a, r.a], [l.c, null], [null, r.d], [l.e, r.e] ]
   ]
 
+  select_tests = [
+    left: [ l.a, l.c, l.e ]
+    right: [ r.a, r.d, r.e ]
+    expected: [ [l.a, r.a], [l.c, null], [null, r.d], [l.e, r.e] ]
+    select: 'r'
+  ]
+
   # Helpers
 
   run_join = (options, left, right, done) ->
@@ -197,6 +204,14 @@ describe '_.join again', ->
       it "works for a small example:\n#{inspect left},\n#{inspect right}", (done) ->
         console.log 'joining', left, right
         run_join options, _.values(left), _.values(right), (actual) ->
+          assert.deepEqual sort(actual), prep(expected, options.type)
+          done()
+
+    _.each select_tests, ({left, right, expected, select}) ->
+      it "works with select: #{inspect select}", (done) ->
+        console.log 'joining', left, right, select, options.type
+        opts = _.extend {}, options, select: select
+        run_join opts, _.values(left), _.values(right), (actual) ->
           assert.deepEqual sort(actual), prep(expected, options.type)
           done()
 

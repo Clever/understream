@@ -55,20 +55,23 @@ class HashAccumulator extends Writable
     hash = @_hash obj
     if @cache[hash]?
       throw new Error "Duplicate object according to 'on'=#{util.inspect @options.on} prev_match=#{util.inspect @cache[hash]} current_match=#{util.inspect obj}"
-    # @options.select specifies what to pull out from this obj
-    # select: ['a'] => just 'a'
-    # select: [{'a':'a_'}, 'b'] => pull 'a' as 'a_', 'b' as itself
-    data = {}
-    if not @options.select?
-      data = obj
-    else
-      _(@options.select).each (sel) =>
-        if _(sel).isString()
-          data[sel] = obj[sel]
-        else
-          data[as] = obj[key] for key, as of sel
-    @cache[hash] = data
+    @cache[hash] = do_select @options.select, obj
     cb()
+
+do_select = (spec, obj) ->
+  # @options.select specifies what to pull out from this obj
+  # select: ['a'] => just 'a'
+  # select: [{'a':'a_'}, 'b'] => pull 'a' as 'a_', 'b' as itself
+  data = {}
+  if (not spec) or (not obj?)
+    data = obj
+  else
+    _(spec).each (sel) =>
+      if _(sel).isString()
+        data[sel] = obj[sel]
+      else
+        data[as] = obj[key] for key, as of sel
+  data
 
 class HashJoin extends Transform
   constructor: (@stream_opts, @options) ->
@@ -102,11 +105,11 @@ class HashJoin extends Transform
       @_buffer.push [chunk, cb]
 
 class SortedMergeJoin extends Transform
-
   # This is a kind of tricky version of the usual merge algorithm since we want
   # to use a Transform stream. The instance itself will function as the left
   # stream.
-  constructor: (stream_opts, {@right, @key, @type}) ->
+  constructor: (stream_opts, {@right, @key, @type, @select}) ->
+    @select = @select?.concat @key
     super stream_opts
 
   push: (arg) ->
@@ -117,7 +120,7 @@ class SortedMergeJoin extends Transform
         (@type is 'right' and r?) or
         (@type is 'inner' and l? and r?) or
         (@type is 'outer')
-      super _.extend {}, l, r
+      super _.extend {}, l, do_select(@select, r)
 
   # Since _transform is called each time there's a new left item
   # ready, and blocks the left stream until we call cb, we need to do all the
@@ -163,6 +166,7 @@ class Join
         right: @options.from
         key: @options.on
         type: @options.type
+        select: @options.select
     else
       return new HashJoin @stream_opts, @options
 
