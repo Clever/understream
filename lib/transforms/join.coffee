@@ -102,37 +102,46 @@ class HashJoin extends Transform
       @_buffer.push [chunk, cb]
 
 class SortedMergeJoin extends Transform
+  _push = ([l, r]) ->
+    if (@type is 'left' and l?) or
+        (@type is 'right' and r?) or
+        (@type is 'inner' and l? and r?) or
+        (@type is 'outer')
+      @push _.extend {}, l, r
+
   # This is a kind of tricky version of the usual merge algorithm since we want
   # to use a Transform stream. The instance itself will function as the left
   # stream.
-  constructor: (stream_opts, {@right, @key}) ->
+  constructor: (stream_opts, {@right, @key, @type}) ->
     super stream_opts
 
   # Since _transform is called each time there's a new left item
   # ready, and blocks the left stream until we call cb, we need to do all the
   # processing necessary for that item and then call cb.
   _transform: (chunk, enc, cb) ->
+    push = _push.bind(@)
     next = -> nextTick cb
     l = chunk
     while (r = @right.read())?
       if l[@key] > r[@key]
-        @push r
+        push [null, r]
       else if l[@key] < r[@key]
-        @push l
+        push [l, null]
         # Put r back at the head of right so we can read it again next
         # _transform or in _flush
         @right.unshift r
         return next()
       else if l[@key] is r[@key]
-        @push _.extend {}, l, r
+        push [l, r]
         return next()
-    @push l
+    push [l, null]
     next()
 
   # _flush is called when the stream is empty, so we need to also empty out the
   # right stream if there are any leftovers.
   _flush: (cb) ->
-    @push r while (r = @right.read())?
+    push = _push.bind(@)
+    push [null, r] while (r = @right.read())?
     nextTick cb
 
 class Join
@@ -147,13 +156,11 @@ class Join
     # todo: validate each @options.on is either a string or single {k:v}
     throw new Error "'from' must be pipeable" unless _(@options.from.pipe).isFunction()
 
-
-    # Sorted merge only currently supported for outer joins
-    if @options.sorted and @options.type is 'outer'
+    if @options.sorted
       return new SortedMergeJoin @stream_opts,
         right: @options.from
         key: @options.on
-        type: 'outer' # only type supported so far
+        type: @options.type
     else
       return new HashJoin @stream_opts, @options
 
