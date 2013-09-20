@@ -28,11 +28,12 @@ class StreamCombiner extends PassThrough
   pipe: (dest, options) => @tail.pipe dest, options
 
 class ArrayStream extends Readable
-  constructor: (@options, @arr, @index=0) ->
+  constructor: (@options, arr) ->
+    @arr = _(arr).clone()
     super _(@options).extend objectMode: true
   _read: (size) =>
     debug "_read #{size} #{JSON.stringify @arr[@index]}"
-    @push @arr[@index++] # Note: push(null) signals the end of the stream, so this just works^tm
+    @push @arr.shift() or null # Shift returns undefined when the array is empty but we want to push null
 
 class DevNull extends Writable
   constructor: -> super objectMode: true
