@@ -23,5 +23,3 @@ describe '_.transform', ->
       assert.deepEqual data, input.concat ['bye bye']
       done()
     .run assert.ifError
-
-
