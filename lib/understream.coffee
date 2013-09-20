@@ -33,7 +33,7 @@ class ArrayStream extends Readable
     super _(@options).extend objectMode: true
   _read: (size) =>
     debug "_read #{size} #{JSON.stringify @arr[0]}"
-    @push @arr.shift()
+    @push @arr.shift() # Note: push(undefined) signals the end of the stream, so this just works^tm
 
 class DevNull extends Writable
   constructor: -> super objectMode: true
