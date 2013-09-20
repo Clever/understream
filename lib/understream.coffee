@@ -71,8 +71,7 @@ class Understream
     dmn.add stream for stream in @_streams
     dmn.run =>
       debug 'running'
-      return unless @_streams.length > 1
-      pipe_streams_together @_streams...
+      pipe_streams_together @_streams... if @_streams.length > 1
     @
   readable: => @_streams[@_streams.length - 1] # If you want to get out of understream and access the raw stream
   duplex: => new StreamCombiner @_streams...
