@@ -13,6 +13,7 @@ is_readable = (instance) ->
   instance.pipe?
 
 pipe_streams_together = (streams...) ->
+  return if streams.length < 2
   streams[i].pipe streams[i + 1] for i in [0..streams.length - 2]
 
 # Based on: http://stackoverflow.com/questions/17471659/creating-a-node-js-stream-from-two-piped-streams
@@ -70,9 +71,11 @@ class Understream
     dmn.add stream for stream in @_streams
     dmn.run =>
       debug 'running'
-      pipe_streams_together @_streams... if @_streams.length > 1
+      pipe_streams_together @_streams...
     @
-  readable: => @_streams[@_streams.length - 1] # If you want to get out of understream and access the raw stream
+  readable: => # If you want to get out of understream and access the raw stream
+    pipe_streams_together @_streams...
+    @_streams[@_streams.length - 1]
   duplex: => new StreamCombiner @_streams...
   stream: => @readable() # Just an alias for compatibility purposes
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
