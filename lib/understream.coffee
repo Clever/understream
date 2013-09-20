@@ -33,7 +33,7 @@ class ArrayStream extends Readable
     super _(@options).extend objectMode: true
   _read: (size) =>
     debug "_read #{size} #{JSON.stringify @arr[0]}"
-    @push @arr.shift() or null # Shift returns undefined when the array is empty but we want to push null
+    @push @arr.shift()
 
 class DevNull extends Writable
   constructor: -> super objectMode: true
