@@ -28,12 +28,11 @@ class StreamCombiner extends PassThrough
   pipe: (dest, options) => @tail.pipe dest, options
 
 class ArrayStream extends Readable
-  constructor: (@options, arr) ->
-    @arr = _(arr).clone()
+  constructor: (@options, @arr, @index=0) ->
     super _(@options).extend objectMode: true
   _read: (size) =>
-    debug "_read #{size} #{JSON.stringify @arr[0]}"
-    @push @arr.shift() # Note: push(undefined) signals the end of the stream, so this just works^tm
+    debug "_read #{size} #{JSON.stringify @arr[@index]}"
+    @push @arr[@index++] # Note: push(undefined) signals the end of the stream, so this just works^tm
 
 class DevNull extends Writable
   constructor: -> super objectMode: true
