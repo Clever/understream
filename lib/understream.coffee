@@ -27,9 +27,7 @@ class StreamCombiner extends PassThrough
     @head = @streams[0]
     @tail = @streams[@streams.length - 1]
     @streams[i].pipe @streams[i + 1] for i in [0..@streams.length - 2]
-    @on 'pipe', (source) =>
-      source.unpipe @
-      source = source.pipe @head
+    @on 'pipe', (source) => source.unpipe(@).pipe @head
   pipe: (dest, options) =>
     @tail.pipe dest, options
 
