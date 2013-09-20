@@ -79,20 +79,20 @@ class Understream
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance
     @
-  @mixin: (FunctionOrReadableStreamKlass, name=(FunctionOrReadableStreamKlass.name or Readable.name), fn=false) ->
+  @mixin: (FunctionOrStreamKlass, name=(FunctionOrStreamKlass.name or Readable.name), fn=false) ->
     Understream::[name] = (args...) ->
       if fn
         # Allow mixing in of functions like through()
-        instance = FunctionOrReadableStreamKlass.apply null, args
+        instance = FunctionOrStreamKlass.apply null, args
       else
         # If this is a class and argument length is < constructor length, prepend defaults to arguments list
-        if args.length < FunctionOrReadableStreamKlass.length
+        if args.length < FunctionOrStreamKlass.length
           args.unshift _(@defaults).clone()
-        else if args.length is FunctionOrReadableStreamKlass.length
+        else if args.length is FunctionOrStreamKlass.length
           _(args[0]).defaults @defaults
         else
-          throw new Error "Expected #{FunctionOrReadableStreamKlass.length} or #{FunctionOrReadableStreamKlass.length-1} arguments to #{name}, got #{args.length}"
-        instance = new FunctionOrReadableStreamKlass args...
+          throw new Error "Expected #{FunctionOrStreamKlass.length} or #{FunctionOrStreamKlass.length-1} arguments to #{name}, got #{args.length}"
+        instance = new FunctionOrStreamKlass args...
       @pipe instance
       debug 'created', instance.constructor.name, @_streams.length
       @
