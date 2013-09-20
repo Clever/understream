@@ -18,15 +18,18 @@ construct = (constructor, args) ->
   F.prototype = constructor.prototype
   new F()
 
+pipe_streams_together = (streams...) ->
+  streams[i].pipe streams[i + 1] for i in [0..streams.length - 2]
+
 # Based on: http://stackoverflow.com/questions/17471659/creating-a-node-js-stream-from-two-piped-streams
 # The version there was broken and needed some changes, we just kept the concept of using the 'pipe'
 # event and overriding the pipe method
 class StreamCombiner extends PassThrough
-  constructor: (@streams...) ->
+  constructor: (streams...) ->
     super objectMode: true
-    @head = @streams[0]
-    @tail = @streams[@streams.length - 1]
-    @streams[i].pipe @streams[i + 1] for i in [0..@streams.length - 2]
+    @head = streams[0]
+    @tail = streams[streams.length - 1]
+    pipe_streams_together streams...
     @on 'pipe', (source) => source.unpipe(@).pipe @head
   pipe: (dest, options) =>
     @tail.pipe dest, options
@@ -79,9 +82,7 @@ class Understream
     dmn.run =>
       debug 'running'
       return unless @read_streams.length > 1
-      _([0..@read_streams.length-2]).each (i) =>
-        debug 'piping', @read_streams[i]?.constructor.name, '-->', @read_streams[i+1]?.constructor.name
-        @read_streams[i].pipe @read_streams[i+1]
+      pipe_streams_together @read_streams...
     @
   readable: => @read_stream # if you want to get out of understream and access the raw stream
   duplex: => new StreamCombiner @read_streams...
