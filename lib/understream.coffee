@@ -19,7 +19,8 @@ construct = (constructor, args) ->
   new F()
 
 # Based on: http://stackoverflow.com/questions/17471659/creating-a-node-js-stream-from-two-piped-streams
-# The version there was broken and needed some changes
+# The version there was broken and needed some changes, we just kept the concept of using the 'pipe'
+# event and overriding the pipe method
 class StreamCombiner extends PassThrough
   constructor: (@streams...) ->
     super objectMode: true
