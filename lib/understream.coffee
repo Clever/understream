@@ -83,8 +83,9 @@ class Understream
         debug 'piping', @read_streams[i]?.constructor.name, '-->', @read_streams[i+1]?.constructor.name
         @read_streams[i].pipe @read_streams[i+1]
     @
-  stream: => @read_stream # if you want to get out of understream and access the raw stream
-  combine: => new StreamCombiner @read_streams...
+  readable: => @read_stream # if you want to get out of understream and access the raw stream
+  duplex: => new StreamCombiner @read_streams...
+  stream: => @readable() # just an alias for compatibility purposes
   pipe: (stream_instance) => # if you want to add an instance of a stream to the middle of your understream chain
     @read_stream = stream_instance
     @read_streams.push @read_stream

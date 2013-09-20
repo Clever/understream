@@ -15,11 +15,11 @@ class Mult extends Transform
   _transform: (number, encoding, cb) =>
     cb null, number * @num
 
-describe 'Understream.combine', ->
+describe '_.duplex', ->
   it 'allows you to combine multiple streams', (done) ->
     Understream.mixin Add, 'add'
     Understream.mixin Mult, 'mult'
-    math = _.stream().add(1).mult(2).mult(2).mult(2).mult(2).combine()
+    math = _.stream().add(1).mult(2).mult(2).mult(2).mult(2).duplex()
     inp = [1, 2, 3, 4]
     _([1, 2, 3, 4]).stream().pipe(math).value (result) ->
       assert.equal result.length, 4
