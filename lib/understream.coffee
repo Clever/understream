@@ -79,7 +79,7 @@ class Understream
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance
     @
-  @mixin: (FunctionOrReadableStreamKlass, name=Readable.name, fn=false) ->
+  @mixin: (FunctionOrReadableStreamKlass, name=(FunctionOrReadableStreamKlass.name or Readable.name), fn=false) ->
     Understream::[name] = (args...) ->
       if fn
         # Allow mixing in of functions like through()
