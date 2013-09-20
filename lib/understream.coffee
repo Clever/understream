@@ -32,7 +32,7 @@ class ArrayStream extends Readable
     @arr = _(arr).clone()
     super _(@options).extend objectMode: true
   _read: (size) =>
-    debug "_read #{size} #{JSON.stringify @arr[@index]}"
+    debug "_read #{size} #{JSON.stringify @arr[0]}"
     @push @arr.shift() or null # Shift returns undefined when the array is empty but we want to push null
 
 class DevNull extends Writable
