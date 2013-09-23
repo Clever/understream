@@ -15,7 +15,6 @@ class Queue extends Transform
     @q = async.queue (payload, cb) =>
       return cb() if @_err # Don't try to keep processing if we've errored
       @options.fn payload, (err, out) =>
-        debug "received", out
         return cb() if @_err
         if err
           @end() # End the stream immediately if there's an error
@@ -30,7 +29,6 @@ class Queue extends Transform
       => @_docs_in_queue() >= @options.concurrency
       (cb_w) => nextTick cb_w
       =>
-        debug "pushing", chunk
         @q.push chunk
         cb()
     )
