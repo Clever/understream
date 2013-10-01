@@ -36,6 +36,31 @@ hash_fn = (source, onn) ->
       val
     ).join '|'
 
+# Given two items or nulls, joins them based on the type of join specified.
+# If the objects have common fields, the right object wins.
+join_items = (l, r, type) ->
+  if (type is 'left' and l?) or
+      (type is 'right' and r?) or
+      (type is 'inner' and l? and r?) or
+      (type is 'outer')
+    _.extend {}, l, r
+
+select_fields = (spec, obj) ->
+  # @options.select specifies what to pull out from this obj
+  # select: ['a'] => just 'a'
+  # select: [{'a':'a_'}, 'b'] => pull 'a' as 'a_', 'b' as itself
+  data = {}
+  if (not spec) or (not obj?)
+    data = obj
+  else
+    _(spec).each (sel) =>
+      if _(sel).isString()
+        data[sel] = obj[sel]
+      else
+        data[as] = obj[key] for key, as of sel
+  data
+
+
 class HashAccumulator extends Writable
   constructor: (@stream_opts, @options) ->
     super @stream_opts
@@ -55,19 +80,7 @@ class HashAccumulator extends Writable
     hash = @_hash obj
     if @cache[hash]?
       throw new Error "Duplicate object according to 'on'=#{util.inspect @options.on} prev_match=#{util.inspect @cache[hash]} current_match=#{util.inspect obj}"
-    # @options.select specifies what to pull out from this obj
-    # select: ['a'] => just 'a'
-    # select: [{'a':'a_'}, 'b'] => pull 'a' as 'a_', 'b' as itself
-    data = {}
-    if not @options.select?
-      data = obj
-    else
-      _(@options.select).each (sel) =>
-        if _(sel).isString()
-          data[sel] = obj[sel]
-        else
-          data[as] = obj[key] for key, as of sel
-    @cache[hash] = data
+    @cache[hash] = select_fields @options.select, obj
     cb()
 
 class HashJoin extends Transform
@@ -85,14 +98,7 @@ class HashJoin extends Transform
     @_hash ?= hash_fn true, @options.on
     hash = @_hash obj
     match = @hash.cache[hash]
-    if not match?
-      switch @options.type
-        when 'left' then return cb null, obj
-        when 'inner', 'right' then return cb()
-    else
-      # there's a match, so copy over selected fields
-      obj[k] = v for k, v of match
-      cb null, obj
+    cb null, join_items obj, match, @options.type
 
   _transform: (chunk, encoding, cb) =>
     # wait for join stream before joining
@@ -105,8 +111,16 @@ class SortedMergeJoin extends Transform
   # This is a kind of tricky version of the usual merge algorithm since we want
   # to use a Transform stream. The instance itself will function as the left
   # stream.
-  constructor: (stream_opts, {@right, @key}) ->
+  constructor: (stream_opts, {@right, @key, @type, @select}) ->
+    @select = @select?.concat @key
     super stream_opts
+
+  push: (arg) ->
+    # push() still needs to support pushing null
+    unless arg? then return super null
+    [l, r] = arg
+    joined = join_items l, select_fields(@select, r), @type
+    if joined? then super joined
 
   # Since _transform is called each time there's a new left item
   # ready, and blocks the left stream until we call cb, we need to do all the
@@ -116,23 +130,23 @@ class SortedMergeJoin extends Transform
     l = chunk
     while (r = @right.read())?
       if l[@key] > r[@key]
-        @push r
+        @push [null, r]
       else if l[@key] < r[@key]
-        @push l
+        @push [l, null]
         # Put r back at the head of right so we can read it again next
         # _transform or in _flush
         @right.unshift r
         return next()
       else if l[@key] is r[@key]
-        @push _.extend {}, l, r
+        @push [l, r]
         return next()
-    @push l
+    @push [l, null]
     next()
 
   # _flush is called when the stream is empty, so we need to also empty out the
   # right stream if there are any leftovers.
   _flush: (cb) ->
-    @push r while (r = @right.read())?
+    @push [null, r] while (r = @right.read())?
     nextTick cb
 
 class Join
@@ -147,13 +161,12 @@ class Join
     # todo: validate each @options.on is either a string or single {k:v}
     throw new Error "'from' must be pipeable" unless _(@options.from.pipe).isFunction()
 
-
-    # Sorted merge only currently supported for outer joins
-    if @options.sorted and @options.type is 'outer'
+    if @options.sorted
       return new SortedMergeJoin @stream_opts,
         right: @options.from
         key: @options.on
-        type: 'outer' # only type supported so far
+        type: @options.type
+        select: @options.select
     else
       return new HashJoin @stream_opts, @options
 
