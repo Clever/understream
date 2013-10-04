@@ -1,10 +1,9 @@
-{Writable, PassThrough} = require 'readable-stream'
-Readable = require 'readable-stream'
-fs     = require('fs')
-_      = require 'underscore'
-debug  = require('debug') 'us'
-domain = require 'domain'
+_              = require 'underscore'
+debug          = require('debug') 'us'
+domain         = require 'domain'
+fs             = require 'fs'
 {EventEmitter} = require 'events'
+{PassThrough, Readable, Transform, Writable} = require 'readable-stream'
 
 is_readable = (instance) ->
   instance? and
@@ -39,6 +38,12 @@ class DevNull extends Writable
   constructor: -> super objectMode: true
   _write: (chunk, encoding, cb) => cb()
 
+class Emitter extends Transform
+  constructor: -> super objectMode: true
+  _transform: (chunk, encoding, cb) =>
+    @emit 'result', chunk
+    cb null, chunk
+
 class Understream
   constructor: (head) ->
     @defaults = highWaterMark: 1000, objectMode: true
@@ -59,13 +64,30 @@ class Understream
         str += "#{stream.constructor.name}(#{stream._writableState?.length or ''} #{stream._readableState?.length or ''}) "
       console.log str
     interval = setInterval report, 5000
+    # If the callback has arity 2, assume that they want us to aggregate all results in an array and
+    # pass that to the callback.
+    result = undefined
+    if cb.length is 2
+      result = []
+      @batch Infinity
+      # Ideally we'd like to just listen to the 'data' event of the batch stream, but adding a
+      # data listener actually changes the behavior of streams:
+      #
+      # "If you attach a data event listener, then it will switch the stream into flowing mode, and
+      # data will be passed to your handler as soon as it is available."
+      # - http://nodejs.org/docs/v0.10.15/api/stream.html#stream_event_data
+      #
+      # Instead we create this emitter stream and listen to it's "result" event.
+      (emitter = new Emitter()).on 'result', (_result) -> result = _result
+      @pipe emitter
     # If the final stream is a transform, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if _(@_streams).last()._transform?
     dmn = domain.create()
     handler = (err) =>
       clearInterval interval
-      cb err
+      return cb err if err or not result
+      cb null, result
     _(@_streams).last().on 'finish', handler
     dmn.on 'error', handler
     dmn.add stream for stream in @_streams
