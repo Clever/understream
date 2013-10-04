@@ -3,7 +3,7 @@ debug          = require('debug') 'us'
 domain         = require 'domain'
 fs             = require 'fs'
 {EventEmitter} = require 'events'
-{PassThrough, Readable, Transform, Writable} = require 'readable-stream'
+{PassThrough, Readable, Writable} = require 'readable-stream'
 
 is_readable = (instance) ->
   instance? and
