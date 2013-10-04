@@ -38,12 +38,6 @@ class DevNull extends Writable
   constructor: -> super objectMode: true
   _write: (chunk, encoding, cb) => cb()
 
-class Emitter extends Transform
-  constructor: -> super objectMode: true
-  _transform: (chunk, encoding, cb) =>
-    @emit 'result', chunk
-    cb null, chunk
-
 class Understream
   constructor: (head) ->
     @defaults = highWaterMark: 1000, objectMode: true
@@ -77,9 +71,10 @@ class Understream
       # data will be passed to your handler as soon as it is available."
       # - http://nodejs.org/docs/v0.10.15/api/stream.html#stream_event_data
       #
-      # Instead we create this emitter stream and listen to it's "result" event.
-      (emitter = new Emitter()).on 'result', (_result) -> result = _result
-      @pipe emitter
+      # Instead we create a custom transform stream
+      @transform (chunk, encoding, cb) ->
+        result = chunk
+        cb null, chunk
     # If the final stream is a transform, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if _(@_streams).last()._transform?
