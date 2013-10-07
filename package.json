@@ -27,6 +27,7 @@
     "sinon": "~1.5.2",
     "mocha": "~1.9.0",
     "through": "~2.3.4",
-    "mongoose": "~3.6.19"
+    "mongoose": "~3.6.19",
+    "JSONStream": "~0.7.1"
   }
 }
