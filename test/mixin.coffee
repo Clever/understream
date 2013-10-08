@@ -3,7 +3,7 @@ async = require 'async'
 _     = require 'underscore'
 understream = require "#{__dirname}/../index"
 _.mixin understream.exports()
-Readable = require 'readable-stream'
+{Readable} = require 'stream'
 
 describe 'custom mixins', ->
   it 'works', (done) ->

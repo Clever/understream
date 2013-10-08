@@ -1,5 +1,4 @@
-{Writable, PassThrough} = require 'readable-stream'
-Readable = require 'readable-stream'
+{Readable, Writable, PassThrough} = require 'stream'
 fs     = require('fs')
 _      = require 'underscore'
 debug  = require('debug') 'us'
@@ -36,8 +35,7 @@ class ArrayStream extends Readable
     @push @arr[@index++] # Note: push(undefined) signals the end of the stream, so this just works^tm
 
 class DevNull extends Writable
-  constructor: -> super objectMode: true
-  _write: (chunk, encoding, cb) => cb()
+  _write: (chunk, encoding, cb) -> cb()
 
 class Understream
   constructor: (head) ->
@@ -59,9 +57,10 @@ class Understream
         str += "#{stream.constructor.name}(#{stream._writableState?.length or ''} #{stream._readableState?.length or ''}) "
       console.log str
     interval = setInterval report, 5000
-    # If the final stream is a transform, attach a dummy writer to receive its output
+    # If the final stream is readable, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
-    @_streams.push new DevNull() if _(@_streams).last()._transform?
+    if _(@_streams).last()._read?
+      @_streams.push new DevNull({objectMode:_(@_streams).last()._readableState.objectMode})
     dmn = domain.create()
     handler = (err) =>
       clearInterval interval
@@ -99,7 +98,7 @@ class Understream
       debug 'created', instance.constructor.name, @_streams.length
       @
 
-_(["#{__dirname}/transforms", "#{__dirname}/readables"]).each (dir) ->
+_(["#{__dirname}/transforms"]).each (dir) ->
   _(fs.readdirSync(dir)).each (filename) ->
     return unless new RegExp("^([^\\.]\\S+)\\.js$").test filename # Exclude hidden files
     require("#{dir}/#{filename}") Understream

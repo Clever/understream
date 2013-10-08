@@ -1,4 +1,4 @@
-{Transform} = require 'readable-stream'
+{Transform} = require 'stream'
 _      = require 'underscore'
 debug  = require('debug') 'us:groupBy'
 
