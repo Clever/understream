@@ -1,4 +1,4 @@
-{Duplex} = require 'readable-stream'
+{Duplex} = require 'stream'
 _      = require 'underscore'
 debug  = require('debug') 'us:file'
 fs = require 'fs'
