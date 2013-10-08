@@ -23,5 +23,5 @@ describe '_.file', ->
     .run (err) ->
       tmp_contents = fs.readFileSync(tmp, { encoding: 'utf8' })
       fs.unlinkSync tmp
-      assert.equal TEST_TXT_CONTENTS, tmp_contents
+      assert.equal TEST_TXT_CONTENTS, tmp_contents, "'#{TEST_TXT_CONTENTS}' != '#{tmp_contents}' for #{tmp}"
       done()
