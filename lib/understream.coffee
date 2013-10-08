@@ -1,9 +1,9 @@
-_              = require 'underscore'
-debug          = require('debug') 'us'
-domain         = require 'domain'
-fs             = require 'fs'
+{Readable, Writable, PassThrough} = require 'stream'
+fs     = require('fs')
+_      = require 'underscore'
+debug  = require('debug') 'us'
+domain = require 'domain'
 {EventEmitter} = require 'events'
-{PassThrough, Readable, Writable} = require 'readable-stream'
 
 is_readable = (instance) ->
   instance? and

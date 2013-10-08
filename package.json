@@ -3,7 +3,7 @@
   "version": "0.6.0",
   "description": "stream helpers",
   "engines": {
-    "node": ">=0.8.x"
+    "node": ">=0.10.x"
   },
   "main": "index.js",
   "scripts": {
@@ -19,8 +19,7 @@
   "dependencies": {
     "debug": "~0.7.2",
     "underscore": "~1.5.2",
-    "async": "~0.2.5",
-    "readable-stream": "~1.0.2"
+    "async": "~0.2.5"
   },
   "devDependencies": {
     "coffee-script": "~1.6.2",
