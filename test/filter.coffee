@@ -12,10 +12,10 @@ describe '_.filter', ->
     expected = input.slice 0, 1
     async.forEach [synch, asynch], (fn, cb_fe) ->
       spy = sinon.spy fn
-      _(input).stream().filter(spy).value (result) ->
+      _(input).stream().filter(spy).run (err, result) ->
+        assert.ifError err
         assert.deepEqual expected, result
         assert.equal spy.callCount, 2
-        assert.deepEqual spy,args[i][0], input[i] for i in input.length
+        assert.deepEqual spy.args[i][0], input[i] for i in input.length
         cb_fe()
-      .run assert.ifError
     , done

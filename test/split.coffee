@@ -42,7 +42,7 @@ describe '_.split', ->
       r.push "1\n2\n3\n"
       r.push null
       r._read = () ->
-      _(r).stream().split(arg_spec.arg).value (val) ->
+      _(r).stream().split(arg_spec.arg).run (err, val) ->
+        assert.ifError err
         assert.deepEqual _(val).map(String), ['1','2','3']
         done()
-      .run assert.ifError

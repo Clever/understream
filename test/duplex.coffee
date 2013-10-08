@@ -26,22 +26,22 @@ describe '_.duplex', ->
     Understream.mixin Mult, 'mult'
     math = _.stream().add(1).duplex()
     inp = [1, 2, 3, 4]
-    _([1, 2, 3, 4]).stream().pipe(math).value (result) ->
+    _([1, 2, 3, 4]).stream().pipe(math).run (err, result) ->
+      assert.ifError err
       assert.equal result.length, 4
       assert.deepEqual result, (num+1 for num in inp)
       done()
-    .run assert.ifError
 
   it 'allows you to combine multiple streams', (done) ->
     Understream.mixin Add, 'add'
     Understream.mixin Mult, 'mult'
     math = _.stream().add(1).mult(2).mult(2).mult(2).mult(2).duplex()
     inp = [1, 2, 3, 4]
-    _([1, 2, 3, 4]).stream().pipe(math).value (result) ->
+    _([1, 2, 3, 4]).stream().pipe(math).run (err, result) ->
+      assert.ifError err
       assert.equal result.length, 4
       assert.deepEqual result, ((num+1) * 16 for num in inp)
       done()
-    .run assert.ifError
 
   it "allows user to handle any thrown errors", (done) ->
     return done() if process.versions.node.match /^0\.8/
