@@ -2,7 +2,7 @@ assert = require 'assert'
 async  = require 'async'
 _      = require 'underscore'
 _.mixin require("#{__dirname}/../index").exports()
-{Readable} = require 'readable-stream'
+{Readable} = require 'stream'
 fs = require 'fs'
 
 TEST_TXT_CONTENTS = fs.readFileSync "#{__dirname}/test.txt", { encoding: 'utf8' }
