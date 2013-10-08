@@ -2,7 +2,7 @@ assert = require 'assert'
 _      = require 'underscore'
 _.mixin require("#{__dirname}/../index").exports()
 async = require 'async'
-Readable = require 'readable-stream'
+{Readable} = require 'stream'
 
 # domain_emitter (0.8) vs domainEmitter (0.10)
 domain_emitter = (domain_err) ->
@@ -38,7 +38,7 @@ describe '_.split', ->
     { type: 'obj', arg: { sep: '\n' } }
   ].forEach (arg_spec) ->
     it "splits with a #{arg_spec.type} argument", (done) ->
-      r = new Readable
+      r = new Readable()
       r.push "1\n2\n3\n"
       r.push null
       r._read = () ->

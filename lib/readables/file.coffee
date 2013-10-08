@@ -1,4 +1,4 @@
-Readable = require 'readable-stream'
+{Readable} = require 'stream'
 _      = require 'underscore'
 debug  = require('debug') 'us:file'
 fs = require 'fs'

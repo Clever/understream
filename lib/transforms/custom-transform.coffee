@@ -1,4 +1,4 @@
-Transform = require('readable-stream').Transform
+Transform = require('stream').Transform
 _      = require 'underscore'
 debug  = require('debug') 'us:custom'
 
