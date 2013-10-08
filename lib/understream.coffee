@@ -1,5 +1,4 @@
-{Writable, PassThrough} = require 'readable-stream'
-Readable = require 'readable-stream'
+{Readable, Writable, PassThrough} = require 'stream'
 fs     = require('fs')
 _      = require 'underscore'
 debug  = require('debug') 'us'

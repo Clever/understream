@@ -2,7 +2,7 @@ assert = require 'assert'
 _      = require 'underscore'
 _.mixin require("#{__dirname}/../index").exports()
 async = require 'async'
-Readable = require 'readable-stream'
+{Readable} = require 'stream'
 
 # domain_emitter (0.8) vs domainEmitter (0.10)
 domain_emitter = (domain_err) ->

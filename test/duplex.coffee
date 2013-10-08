@@ -1,7 +1,7 @@
 _           = require 'underscore'
 assert      = require 'assert'
 Understream = require "#{__dirname}/../index"
-{Transform} = require 'readable-stream'
+{Transform} = require 'stream'
 _.mixin Understream.exports()
 
 # domain_thrown (0,8) vs domainThrown (0.10)

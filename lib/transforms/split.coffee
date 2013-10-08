@@ -1,6 +1,6 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:split'
-Transform = require 'readable-stream/transform'
+{Transform} = require 'stream'
 
 class Split extends Transform
   constructor: (@stream_opts, @options) ->
