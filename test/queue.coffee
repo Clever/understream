@@ -8,12 +8,12 @@ describe '_.queue', ->
   it 'accepts fn, calls it on each chunk, then passes the original chunk along', (done) ->
     input  = [{a:'1', b:'2'}, {c:'2', d:'3'}]
     spy = sinon.spy (chunk, cb) -> setTimeout (-> cb null, chunk), 10
-    _(input).stream().queue(spy).value (result) ->
+    _(input).stream().queue(spy).run (err, result) ->
+      assert.ifError err
       assert.deepEqual result, input
       assert.equal spy.callCount, 2
       assert.deepEqual spy.args[i][0], input[i] for i in input.length
       done()
-    .run assert.ifError
 
   _([1, 2, 3]).each (concurrency) ->
     it "stream properly obeys backpressure with concurrency #{concurrency}", (done) ->
@@ -41,9 +41,9 @@ describe '_.queue', ->
   it "doesn't end the stream if you return undefined", (done) ->
     input  = [{a:'1', b:'2'}, {c:'2', d:'3'}]
     spy = sinon.spy (chunk, cb) -> setTimeout cb, 10
-    _(input).stream().queue(fn: spy, concurrency: 1).value (result) ->
+    _(input).stream().queue(fn: spy, concurrency: 1).run (err, result) ->
+      assert.ifError err
       assert.deepEqual result, []
       assert.equal spy.callCount, 2
       assert.deepEqual spy.args[i][0], input[i] for i in input.length
       done()
-    .run assert.ifError

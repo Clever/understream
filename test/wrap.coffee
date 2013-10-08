@@ -11,10 +11,10 @@ describe '_.stream', ->
     rs = new Readable objectMode: true
     rs.push item for item in input
     rs.push null
-    _(rs).stream().value (result) ->
+    _(rs).stream().run (err, result) ->
+      assert.ifError err
       assert.deepEqual input, result
       done()
-    .run assert.ifError
 
   it 'wraps a mongoose stream', (done) ->
     mongoose = require 'mongoose'

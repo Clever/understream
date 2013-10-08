@@ -9,19 +9,19 @@ describe 'custom mixins', ->
   it 'works', (done) ->
     myawt = require './myawt'
     understream.mixin myawt.MyAwesomeTransform, 'myawt'
-    _([1,2,3]).stream().myawt({}).value((result) ->
+    _([1,2,3]).stream().myawt({}).run (err, result) ->
+      assert.ifError err
       assert.deepEqual result, [11, 12, 13]
       done()
-    ).run assert.ifError
 
 describe 'use your favorite dominctarr streams', ->
   it 'works with through', (done) ->
     through = require 'through'
     understream.mixin through, 'through', true
-    _([1,2,3]).stream().through((data) -> @push data+10).value((result) ->
+    _([1,2,3]).stream().through((data) -> @push data+10).run (err, result) ->
+      assert.ifError err
       assert.deepEqual result, [11, 12, 13]
       done()
-    ).run assert.ifError
 
   it 'works with jsonstream', (done) ->
     jsonstream = require 'JSONStream'
@@ -31,7 +31,7 @@ describe 'use your favorite dominctarr streams', ->
     readable.push '{"a":"3","b":"4"}\n'
     readable.push null
     understream.mixin jsonstream.parse, 'json', true
-    _(readable).stream().json().value((result) ->
+    _(readable).stream().json().run (err, result) ->
+      assert.ifError err
       assert.deepEqual result, [{a:"1", b:"2"},{a:"3", b:"4"}]
       done()
-    ).run assert.ifError
