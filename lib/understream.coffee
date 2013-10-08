@@ -1,10 +1,9 @@
-{Writable, PassThrough} = require 'readable-stream'
-Readable = require 'readable-stream'
-fs     = require('fs')
-_      = require 'underscore'
-debug  = require('debug') 'us'
-domain = require 'domain'
+_              = require 'underscore'
+debug          = require('debug') 'us'
+domain         = require 'domain'
+fs             = require 'fs'
 {EventEmitter} = require 'events'
+{PassThrough, Readable, Writable} = require 'readable-stream'
 
 is_readable = (instance) ->
   instance? and
@@ -59,13 +58,23 @@ class Understream
         str += "#{stream.constructor.name}(#{stream._writableState?.length or ''} #{stream._readableState?.length or ''}) "
       console.log str
     interval = setInterval report, 5000
+    # If the callback has arity 2, assume that they want us to aggregate all results in an array and
+    # pass that to the callback.
+    if cb.length is 2
+      result = []
+      @batch Infinity
+      batch_stream = _(@_streams).last()
+      batch_stream.on 'finish', -> result = batch_stream._buffer
     # If the final stream is a transform, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if _(@_streams).last()._transform?
     dmn = domain.create()
     handler = (err) =>
       clearInterval interval
-      cb err
+      if cb.length is 1
+        cb err
+      else
+        cb err, result
     _(@_streams).last().on 'finish', handler
     dmn.on 'error', handler
     dmn.add stream for stream in @_streams
