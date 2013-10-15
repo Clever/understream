@@ -4,12 +4,11 @@ _ = require 'underscore'
 class SortedUniq extends Transform
   constructor: (@stream_opts, @hash_fn) ->
     super @stream_opts
-    @seen = []
-    @seen_cnt = 0
+    @last = null
   _transform: (obj, encoding, cb) =>
     hash = @hash_fn obj
-    return cb() if @seen.length and _(@seen).last() is hash
-    @seen.push hash
+    return cb() if @last? and @last is hash
+    @last = hash
     cb null, obj
 
 class UnsortedUniq extends Transform
