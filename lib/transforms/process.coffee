@@ -8,6 +8,5 @@ class Process extends Duplex
     @on 'pipe', (source) => source.unpipe(@).pipe @process.stdin
   pipe: (dest, options) => @process.stdout.pipe dest, options
 
-module.exports = (Understream) ->
-  Understream.mixin Process, 'process'
+module.exports = (Understream) -> Understream.mixin Process
 module.exports.Process = Process

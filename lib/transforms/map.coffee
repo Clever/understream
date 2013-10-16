@@ -18,5 +18,4 @@ class Map extends Transform
       @push @options.fn(chunk)
       cb()
 
-module.exports = (Understream) ->
-  Understream.mixin Map, 'map'
+module.exports = (Understream) -> Understream.mixin Map

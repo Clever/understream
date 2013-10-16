@@ -8,5 +8,4 @@ class File extends Readable
     super @stream_opts
     @wrap fs.createReadStream(path, options)
 
-module.exports = (Understream) ->
-  Understream.mixin File, 'file'
+module.exports = (Understream) -> Understream.mixin File

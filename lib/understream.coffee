@@ -1,9 +1,10 @@
-{Readable, Writable, PassThrough} = require 'stream'
-fs     = require('fs')
-_      = require 'underscore'
-debug  = require('debug') 'us'
-domain = require 'domain'
+_              = require 'underscore'
+debug          = require('debug') 'us'
+domain         = require 'domain'
 {EventEmitter} = require 'events'
+fs             = require('fs')
+{Readable, Writable, PassThrough} = require 'stream'
+_.mixin require('underscore.string').exports()
 
 is_readable = (instance) ->
   instance? and
@@ -90,7 +91,10 @@ class Understream
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance
     @
-  @mixin: (FunctionOrStreamKlass, name=(FunctionOrStreamKlass.name or Readable.name), fn=false) ->
+  @mixin: (FunctionOrStreamKlass, name, fn=false) ->
+    if not name and FunctionOrStreamKlass.name
+      name = _(FunctionOrStreamKlass.name).map((c, i) -> if i is 0 then c.toLowerCase() else c).join ''
+    name ?= Readable.name
     Understream::[name] = (args...) ->
       if fn
         # Allow mixing in of functions like through()

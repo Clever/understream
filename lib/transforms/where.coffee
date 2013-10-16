@@ -11,5 +11,4 @@ class Where extends Transform
       return cb() if val isnt chunk[key]
     cb null, chunk
 
-module.exports = (Understream) ->
-  Understream.mixin Where, 'where'
+module.exports = (Understream) -> Understream.mixin Where

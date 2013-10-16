@@ -155,5 +155,4 @@ class Join
     else
       return new HashJoin @stream_opts, @options
 
-module.exports = (Understream) ->
-  Understream.mixin Join, 'join'
+module.exports = (Understream) -> Understream.mixin Join

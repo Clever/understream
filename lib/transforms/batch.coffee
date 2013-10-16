@@ -18,5 +18,4 @@ class Batch extends Transform
     @push @_buffer if @_buffer.length > 0
     cb()
 
-module.exports = (Understream) ->
-  Understream.mixin Batch, 'batch'
+module.exports = (Understream) -> Understream.mixin Batch
