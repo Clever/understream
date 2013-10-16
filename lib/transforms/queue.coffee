@@ -38,5 +38,4 @@ class Queue extends Transform
     else
       nextTick => cb @_err
 
-module.exports = (Understream) ->
-  Understream.mixin Queue, 'queue'
+module.exports = (Understream) -> Understream.mixin Queue

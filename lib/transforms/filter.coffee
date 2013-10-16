@@ -17,5 +17,4 @@ class Filter extends Transform
       @push chunk if @options.fn chunk
       cb()
 
-module.exports = (Understream) ->
-  Understream.mixin Filter, 'filter'
+module.exports = (Understream) -> Understream.mixin Filter

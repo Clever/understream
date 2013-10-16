@@ -9,5 +9,4 @@ class Invoke extends Transform
   _transform: (chunk, encoding, cb) =>
     cb null, chunk[@method].apply(chunk)
 
-module.exports = (Understream) ->
-  Understream.mixin Invoke, 'invoke'
+module.exports = (Understream) -> Understream.mixin Invoke

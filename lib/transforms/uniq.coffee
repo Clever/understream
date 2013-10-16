@@ -32,5 +32,4 @@ class Uniq
     hash_fn ?= String
     return new (if sorted then SortedUniq else UnsortedUniq) stream_opts, hash_fn
 
-module.exports = (Understream) ->
-  Understream.mixin Uniq, 'uniq'
+module.exports = (Understream) -> Understream.mixin Uniq

@@ -25,5 +25,4 @@ class Reduce extends Transform
       @_val = @options.fn @_val, chunk
     cb()
 
-module.exports = (Understream) ->
-  Understream.mixin Reduce, 'reduce'
+module.exports = (Understream) -> Understream.mixin Reduce

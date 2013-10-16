@@ -21,5 +21,4 @@ class Split extends Transform
     @push split for split in splits
     cb()
 
-module.exports = (Understream) ->
-  Understream.mixin Split, 'split'
+module.exports = (Understream) -> Understream.mixin Split

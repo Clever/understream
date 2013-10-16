@@ -18,5 +18,4 @@ class Each extends Transform
       @push chunk
       cb()
 
-module.exports = (Understream) ->
-  Understream.mixin Each, 'each'
+module.exports = (Understream) -> Understream.mixin Each

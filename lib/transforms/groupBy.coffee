@@ -20,5 +20,4 @@ class GroupBy extends Transform
     @_buffer.push chunk
     cb()
 
-module.exports = (Understream) ->
-  Understream.mixin GroupBy, 'groupBy'
+module.exports = (Understream) -> Understream.mixin GroupBy

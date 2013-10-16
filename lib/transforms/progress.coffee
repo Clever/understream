@@ -15,5 +15,4 @@ class Progress extends Transform
     @push chunk
     cb()
 
-module.exports = (Understream) ->
-  Understream.mixin Progress, 'progress'
+module.exports = (Understream) -> Understream.mixin Progress
