@@ -9,7 +9,7 @@ describe '_.rest', ->
     input = [0..10]
     _(input).stream().rest(SKIP).run (err, result) ->
       assert.ifError err
-      assert.deepEqual result, _(input).last(input.length - SKIP)
+      assert.deepEqual result, _(input).rest(SKIP)
       done()
 
   it 'skips all objects if skip size > size of stream', (done) ->
