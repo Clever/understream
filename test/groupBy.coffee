@@ -21,3 +21,15 @@ describe '_.groupBy', ->
       assert.ifError err
       assert.deepEqual data, [ {'1':[1.3]}, {'2':[2.1,2.4]} ]
       done()
+
+  it 'supports an async function, not unpacked', (done) ->
+    _([1.3, 2.1, 2.4]).stream().groupBy({ fn: ((num, cb) -> cb null, Math.floor num) }).run (err, data) ->
+      assert.ifError err
+      assert.deepEqual data, [ {1: [1.3], 2: [2.1,2.4]} ]
+      done()
+
+  it 'supports an async function, unpacked', (done) ->
+    _([1.3, 2.1, 2.4]).stream().groupBy({ fn: ((num, cb) -> cb null, Math.floor num), unpack: true }).run (err, data) ->
+      assert.ifError err
+      assert.deepEqual data, [ {'1':[1.3]}, {'2':[2.1,2.4]} ]
+      done()
