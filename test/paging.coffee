@@ -8,7 +8,7 @@ describe 'paging with limit and skip', ->
     inp = [0..100]
     LIMIT = 10
     SKIP = 10
-    _(inp).stream().skip(SKIP).limit(LIMIT).run (err, results) ->
+    _(inp).stream().rest(SKIP).first(LIMIT).run (err, results) ->
       assert.ifError err
       expected = [SKIP...SKIP+LIMIT]
       assert.deepEqual results, expected
