@@ -3,11 +3,11 @@ assert = require 'assert'
 async = require 'async'
 _.mixin require("#{__dirname}/../index").exports()
 
-describe '_.skip', ->
+describe '_.rest', ->
   it 'skips some objects if skip < size of stream', (done) ->
     SKIP = 5
     input = [0..10]
-    _(input).stream().skip(SKIP).run (err, result) ->
+    _(input).stream().rest(SKIP).run (err, result) ->
       assert.ifError err
       assert.deepEqual result, _(input).last(input.length - SKIP)
       done()
@@ -15,7 +15,7 @@ describe '_.skip', ->
   it 'skips all objects if skip size > size of stream', (done) ->
     SKIP = 100
     input = [0..10]
-    _(input).stream().skip(SKIP).run (err, result) ->
+    _(input).stream().rest(SKIP).run (err, result) ->
       assert.ifError err
       assert.deepEqual result, []
       done()

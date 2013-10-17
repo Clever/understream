@@ -1,12 +1,12 @@
 {Transform} = require 'stream'
 
-class Skip extends Transform
-  constructor: (stream_opts, @skip) ->
+class Rest extends Transform
+  constructor: (stream_opts, @rest=1) ->
     super stream_opts
     @seen = -1
   _transform: (chunk, encoding, cb) =>
     @seen++
-    return cb() if @seen < @skip
+    return cb() if @seen < @rest
     cb null, chunk
 
-module.exports = (Understream) -> Understream.mixin Skip, 'skip'
+module.exports = (Understream) -> Understream.mixin Rest, 'rest'
