@@ -4,6 +4,7 @@ async = require 'async'
 _.mixin require("#{__dirname}/../index").exports()
 
 describe '_.first', ->
+  # fails for node < v0.10.20 due to https://github.com/joyent/node/issues/6183
   it 'sends through all objects if limit > size of stream', (done) ->
     input = [0..10]
     _(input).stream().first(100).run (err, result) ->

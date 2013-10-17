@@ -6,15 +6,14 @@ _.mixin require("#{__dirname}/../index").exports()
 describe '_.reduce', ->
 
   # fails for node < v0.10.20 due to https://github.com/joyent/node/issues/6183
-  # commented out because Travis uses v0.10.12...
-  # it 'works with an empty stream with base 0', (done) ->
-  #   _([]).stream().reduce
-  #     base: 0
-  #     fn: (count, item) -> count += 1
-  #   .run (err, data) ->
-  #     assert.deepEqual data, [0]
-  #     assert.ifError err
-  #     done()
+  it 'works with an empty stream with base 0', (done) ->
+    _([]).stream().reduce
+      base: 0
+      fn: (count, item) -> count += 1
+    .run (err, data) ->
+      assert.deepEqual data, [0]
+      assert.ifError err
+      done()
 
   it 'works on numbers', (done) ->
     _([1, 2, 3]).stream().reduce({fn: ((a,b) -> a + b), base: 0}).run (err, data) ->
