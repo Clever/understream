@@ -9,5 +9,4 @@ class Limit extends Transform
     return cb() if @seen > @limit
     cb null, chunk
 
-module.exports = (Understream) ->
-  Understream.mixin Limit, 'limit'
+module.exports = (Understream) -> Understream.mixin Limit, 'limit'
