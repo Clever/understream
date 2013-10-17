@@ -40,7 +40,7 @@ class DevNull extends Writable
 
 class Understream
   constructor: (head) ->
-    @defaults = highWaterMark: 1000, objectMode: true
+    @_defaults = highWaterMark: 1000, objectMode: true
     head = new ArrayStream {}, head if _(head).isArray()
     if is_readable head
       @_streams = [head]
@@ -49,7 +49,7 @@ class Understream
     else
       throw new Error 'Understream expects a readable stream, an array, or nothing'
 
-  defaults: (@defaults) =>
+  defaults: (@_defaults) => @
   run: (cb) =>
     throw new Error 'Understream::run requires an error handler' unless _(cb).isFunction()
     report = =>
@@ -98,9 +98,9 @@ class Understream
       else
         # If this is a class and argument length is < constructor length, prepend defaults to arguments list
         if args.length < FunctionOrStreamKlass.length
-          args.unshift _(@defaults).clone()
+          args.unshift _(@_defaults).clone()
         else if args.length is FunctionOrStreamKlass.length
-          _(args[0]).defaults @defaults
+          _(args[0]).defaults @_defaults
         else
           throw new Error "Expected #{FunctionOrStreamKlass.length} or #{FunctionOrStreamKlass.length-1} arguments to #{name}, got #{args.length}"
         instance = new FunctionOrStreamKlass args...
