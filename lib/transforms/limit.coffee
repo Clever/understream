@@ -6,7 +6,9 @@ class Limit extends Transform
     @seen = 0
   _transform: (chunk, encoding, cb) =>
     @seen++
-    return cb() if @seen > @limit
+    if @seen > @limit
+      @push null
+      return
     cb null, chunk
 
 module.exports = (Understream) -> Understream.mixin Limit, 'limit'
