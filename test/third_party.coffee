@@ -2,7 +2,6 @@ _     = require 'underscore'
 assert = require 'assert'
 async = require 'async'
 sinon = require 'sinon'
-util = require 'util'
 _.mixin require("#{__dirname}/../index").exports()
 
 describe 'express', ->
