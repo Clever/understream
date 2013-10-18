@@ -10,16 +10,16 @@ describe 'express', ->
   app.set 'port', 6001
   server = app.listen app.settings.port, ->
     console.log "Express server listening on #{app.settings.port}"
-  INP = [1...4]
+  INPUT = [1...4]
   app.get '/test/success', (req, res, next) ->
-    _(INP).stream()
+    _(INPUT).stream()
       .map((num) -> num + 10)
       .map(String)
       .pipe(res)
       .run (err) -> next err if err
   app.get '/test/failure', (req, res, next) ->
     seen = -1
-    _(INP).stream()
+    _(INPUT).stream()
       .transform (obj, enc, cb) ->
         seen++
         if req.query.immediate? or seen
@@ -34,7 +34,7 @@ describe 'express', ->
     quest 'http://localhost:6001/test/success', (err, resp, body) ->
       assert.ifError err
       assert.equal resp.statusCode, 200, "received status code #{resp.statusCode} instead of 200 for body #{body}"
-      assert.deepEqual body, _([1...4]).map((num) -> String num + 10).join ''
+      assert.deepEqual body, _(INPUT).map((num) -> String num + 10).join ''
       done()
   it 'returns an error with our global error handler when we fail eventually', (done) ->
     quest 'http://localhost:6001/test/failure', (err, resp, body) ->
