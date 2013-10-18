@@ -5,6 +5,8 @@ debug  = require('debug') 'us'
 domain = require 'domain'
 {EventEmitter} = require 'events'
 
+_.mixin isPlainObject: (obj) -> obj.constructor is {}.constructor
+
 is_readable = (instance) ->
   instance? and
   _.isObject(instance) and
@@ -91,10 +93,10 @@ class Understream
     @_streams.push stream_instance
     @
   @mixin: (FunctionOrStreamKlass, name=(FunctionOrStreamKlass.name or Readable.name), fn=false) ->
-    if FunctionOrStreamKlass.constructor isnt {}.constructor
-      @_mixin_by_name FunctionOrStreamKlass, name, fn
-    else # underscore-style mixins
+    if _(FunctionOrStreamKlass).isPlainObject() # underscore-style mixins
       @_mixin_by_name klass, name for name, klass of FunctionOrStreamKlass
+    else
+      @_mixin_by_name FunctionOrStreamKlass, name, fn
   @_mixin_by_name: (FunctionOrStreamKlass, name=(FunctionOrStreamKlass.name or Readable.name), fn=false) ->
     Understream::[name] = (args...) ->
       if fn
