@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:reduce'
 
-class Reduce extends Transform
+module.exports = class Reduce extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     # TODO @options._async = _(@options).isFunction and @options.fn.length is 2
@@ -24,6 +24,3 @@ class Reduce extends Transform
     else
       @_val = @options.fn @_val, chunk
     cb()
-
-module.exports = (Understream) ->
-  Understream.mixin Reduce, 'reduce'

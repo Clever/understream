@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:each'
 
-class Each extends Transform
+module.exports = class Each extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
@@ -17,6 +17,3 @@ class Each extends Transform
       @options.fn chunk
       @push chunk
       cb()
-
-module.exports = (Understream) ->
-  Understream.mixin Each, 'each'

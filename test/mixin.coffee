@@ -6,9 +6,16 @@ _.mixin understream.exports()
 {Readable} = require 'stream'
 
 describe 'custom mixins', ->
-  it 'works', (done) ->
+  it 'works old-style', (done) ->
     myawt = require './myawt'
     understream.mixin myawt.MyAwesomeTransform, 'myawt'
+    _([1,2,3]).stream().myawt({}).run (err, result) ->
+      assert.ifError err
+      assert.deepEqual result, [11, 12, 13]
+      done()
+  it 'supports underscore-like mixins', (done) ->
+    myawt = require './myawt'
+    understream.mixin myawt: myawt.MyAwesomeTransform
     _([1,2,3]).stream().myawt({}).run (err, result) ->
       assert.ifError err
       assert.deepEqual result, [11, 12, 13]

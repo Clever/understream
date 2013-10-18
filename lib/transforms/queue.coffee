@@ -3,11 +3,8 @@ _      = require 'underscore'
 async  = require 'async'
 debug  = require('debug') 'us:queue'
 util   = require 'util'
-timers = require 'timers'
 
-nextTick = timers?.setImmediate or process.nextTick
-
-class Queue extends Transform
+module.exports = class Queue extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
@@ -27,7 +24,7 @@ class Queue extends Transform
     # If the queue is full, we hold on to the callback to preserve backpressure
     async.whilst(
       => @_docs_in_queue() >= @options.concurrency
-      (cb_w) => nextTick cb_w
+      (cb_w) => setImmediate cb_w
       =>
         @q.push chunk
         cb()
@@ -36,7 +33,4 @@ class Queue extends Transform
     if @_docs_in_queue() > 0
       @q.drain = => cb @_err
     else
-      nextTick => cb @_err
-
-module.exports = (Understream) ->
-  Understream.mixin Queue, 'queue'
+      setImmediate => cb @_err

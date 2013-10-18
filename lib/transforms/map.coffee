@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:map'
 
-class Map extends Transform
+module.exports = class Map extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
@@ -17,6 +17,3 @@ class Map extends Transform
     else
       @push @options.fn(chunk)
       cb()
-
-module.exports = (Understream) ->
-  Understream.mixin Map, 'map'

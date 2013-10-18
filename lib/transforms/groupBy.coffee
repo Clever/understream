@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:groupBy'
 
-class GroupBy extends Transform
+module.exports = class GroupBy extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     @options = switch
@@ -33,6 +33,3 @@ class GroupBy extends Transform
       @options.fn chunk, (err, hash) =>
         return cb err if err
         add hash
-
-module.exports = (Understream) ->
-  Understream.mixin GroupBy, 'groupBy'
