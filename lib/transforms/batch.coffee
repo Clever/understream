@@ -3,7 +3,7 @@ _      = require 'underscore'
 debug  = require('debug') 'us:batch'
 
 # Accumulates each group of `batchSize` items and outputs them as an array.
-class Batch extends Transform
+module.exports = class Batch extends Transform
   constructor: (@stream_opts, @batchSize) ->
     super @stream_opts
     @_buffer = []
@@ -17,6 +17,3 @@ class Batch extends Transform
   _flush: (cb) =>
     @push @_buffer if @_buffer.length > 0
     cb()
-
-module.exports = (Understream) ->
-  Understream.mixin Batch, 'batch'

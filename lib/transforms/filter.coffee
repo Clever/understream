@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:filter'
 
-class Filter extends Transform
+module.exports = class Filter extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
@@ -16,6 +16,3 @@ class Filter extends Transform
     else
       @push chunk if @options.fn chunk
       cb()
-
-module.exports = (Understream) ->
-  Understream.mixin Filter, 'filter'

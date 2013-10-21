@@ -21,7 +21,7 @@ class UnsortedUniq extends Transform
     @seen[hash] = true
     cb null, obj
 
-class Uniq
+module.exports = class Uniq
   constructor: (stream_opts, sorted, hash_fn) ->
     if _(sorted).isFunction() # For underscore-style arguments
       hash_fn = sorted
@@ -31,6 +31,3 @@ class Uniq
       sorted = sorted.sorted
     hash_fn ?= String
     return new (if sorted then SortedUniq else UnsortedUniq) stream_opts, hash_fn
-
-module.exports = (Understream) ->
-  Understream.mixin Uniq, 'uniq'

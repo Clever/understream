@@ -133,7 +133,7 @@ class SortedMergeJoin extends Transform
     @push r while (r = @right.read())?
     nextTick cb
 
-class Join
+module.exports = class Join
   constructor: (@stream_opts, @options) ->
     #super @stream_opts
     # default to inner join
@@ -154,6 +154,3 @@ class Join
         type: 'outer' # only type supported so far
     else
       return new HashJoin @stream_opts, @options
-
-module.exports = (Understream) ->
-  Understream.mixin Join, 'join'

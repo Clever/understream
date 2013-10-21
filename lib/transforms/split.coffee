@@ -2,7 +2,7 @@ _      = require 'underscore'
 debug  = require('debug') 'us:split'
 {Transform} = require 'stream'
 
-class Split extends Transform
+module.exports = class Split extends Transform
   constructor: (@stream_opts, @options) ->
     delete @stream_opts.objectMode # must take in strings or buffers
     super @stream_opts
@@ -20,6 +20,3 @@ class Split extends Transform
     @leftover = splits.pop()
     @push split for split in splits
     cb()
-
-module.exports = (Understream) ->
-  Understream.mixin Split, 'split'
