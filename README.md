@@ -2,7 +2,7 @@
 
 # Understream
 
-Understream is a Node.JS utility for manipulating streams in a functional way. It provides streaming versions of many of the same functions that [underscore](http://underscorejs.org) provides for arrays and objects.
+Understream is a Node.js utility for manipulating streams in a functional way. It provides streaming versions of many of the same functions that [underscore](http://underscorejs.org) provides for arrays and objects.
 
 Understream is intended to be used with underscore:
 ```javascript
