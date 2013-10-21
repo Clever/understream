@@ -14,10 +14,14 @@ _.mixin(understream.exports());
 Out of the box, it supports many underscore-like functions, but it also makes it very easy to mix in your own streams:
 
 ```javascript
-HOW DO I MAKE A STREAM CLASS IN JAVASCRIPT???
-class Math extends Transform
-    constructor: (stream_opts) -> super stream_opts
-    _transform: (num, enc, cb) -> cb null, num+10
+Transform = require('stream').Transform
+function Math(stream_opts) {
+    Transform.call(this, stream_opts);
+}
+Math.prototype._transform = function (num, enc, cb) {
+    cb(null, num+10);
+}
+util.inherits(Math, Transform);
 understream.mixin(Math, 'add10')
 _.stream([3, 4, 5, 6]).add10().each(console.log).run(function (err) {
     console.log("ERR:", err);
