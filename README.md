@@ -11,7 +11,18 @@ understream = require('understream');
 _.mixin(understream.exports());
 ```
 
-Out of the box, it supports many underscore-like functions, but it also makes it very easy to mix in your own streams:
+Out of the box, it supports many underscore-like functions:
+```javascript
+_.stream([3, 4, 5, 6]).map(function (num) { return num+10 }).each(console.log).run(function (err) {
+    console.log("ERR:", err);
+});
+# 13
+# 14
+# 15
+# 16
+```
+
+It also makes it very easy to mix in your own streams:
 
 ```javascript
 Transform = require('stream').Transform
