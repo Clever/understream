@@ -6,8 +6,8 @@ Understream is a Node.js utility for manipulating streams in a functional way. I
 
 Understream is intended to be used with underscore:
 ```javascript
-_ = require('underscore');
-understream = require('understream');
+var _ = require('underscore');
+var understream = require('understream');
 _.mixin(understream.exports());
 ```
 
@@ -25,7 +25,7 @@ _.stream([3, 4, 5, 6]).map(function (num) { return num+10 }).each(console.log).r
 It also makes it very easy to mix in your own streams:
 
 ```javascript
-Transform = require('stream').Transform
+var Transform = require('stream').Transform
 function Math(stream_opts) {
     Transform.call(this, stream_opts);
 }
