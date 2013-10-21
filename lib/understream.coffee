@@ -40,7 +40,7 @@ class DevNull extends Writable
   constructor: -> super objectMode: true
   _write: (chunk, encoding, cb) => cb()
 
-class Understream
+module.exports = class Understream
   constructor: (head) ->
     @_defaults = highWaterMark: 1000, objectMode: true
     head = new ArrayStream {}, head if _(head).isArray()
@@ -114,6 +114,8 @@ class Understream
       @pipe instance
       debug 'created', instance.constructor.name, @_streams.length
       @
+  # For backwards compatibility and easier mixing in to underscore
+  @exports: -> stream: (head) => new @ head
 
 Understream.mixin _(["#{__dirname}/transforms", "#{__dirname}/readables"]).chain()
   .map (dir) ->
@@ -123,8 +125,3 @@ Understream.mixin _(["#{__dirname}/transforms", "#{__dirname}/readables"]).chain
       [name, require("#{dir}/#{filename}")]
   .flatten(true)
   .object().value()
-
-module.exports =
-  exports: ->
-    stream: (head) -> new Understream head
-  mixin: Understream.mixin.bind Understream
