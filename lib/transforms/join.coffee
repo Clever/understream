@@ -99,15 +99,15 @@ class HashJoin extends Transform
     else
       @_buffer.push [chunk, cb]
 
+# This is a kind of tricky version of the usual merge algorithm since we want
+# to use a Transform stream. The instance itself will function as the left
+# stream.
 class SortedMergeJoin extends Transform
   # Hack to find out if a stream has no more data. This is totally not kosher
   # since it relies on undocumented internals.
   ended = (stream) ->
     stream._readableState.ended and _.isEmpty stream._readableState.buffer
 
-  # This is a kind of tricky version of the usual merge algorithm since we want
-  # to use a Transform stream. The instance itself will function as the left
-  # stream.
   constructor: (stream_opts, {@right, @key}) ->
     super stream_opts
 
@@ -120,23 +120,20 @@ class SortedMergeJoin extends Transform
     # internal state to signal that it's ended.
     async.whilst (=> l? and not ended @right), (cb_w) =>
       r = @right.read()
-      switch
-        when not r?
-          setImmediate cb_w
-        when l[@key] > r[@key]
-          @push r
-          setImmediate cb_w
-        when l[@key] < r[@key]
-          @push l
-          # Put r back at the head of right so we can read it again next
-          # _transform or in _flush
-          @right.unshift r
-          l = null
-          setImmediate cb_w
-        when l[@key] is r[@key]
-          @push _.extend {}, l, r
-          l = null
-          setImmediate cb_w
+      if r?
+        switch
+          when l[@key] > r[@key]
+            @push r
+          when l[@key] < r[@key]
+            @push l
+            # Put r back at the head of right so we can read it again next
+            # _transform or in _flush
+            @right.unshift r
+            l = null
+          when l[@key] is r[@key]
+            @push _.extend {}, l, r
+            l = null
+      setImmediate cb_w
     , =>
       @push l if l?
       cb()
