@@ -3,6 +3,7 @@ async  = require 'async'
 inspect = require('util').inspect
 _      = require 'underscore'
 _.mixin require("#{__dirname}/../index").exports()
+{Readable} = require 'stream'
 
 describe '_.join', ->
   it 'select * inner join on A.key=B.key', (done) ->
@@ -177,7 +178,6 @@ describe '_.join', ->
         assert.deepEqual actual, expected
 
       it "works for a small example:\n#{inspect left},\n#{inspect right}", (done) ->
-        console.log 'joining', left, right
         run_join _.values(left), _.values(right), (actual) ->
           assert.deepEqual actual, combine_pairs expected
           done()
@@ -199,4 +199,45 @@ describe '_.join', ->
         run_join left, right, (actual) ->
           expected = combine_pairs merge_oracle left, right, 'key'
           assert.deepEqual actual, expected
+          done()
+
+    # Since sorted merge join is implemented as a Transform stream that the
+    # left stream is piped to, we need to make sure it treats the right stream
+    # as if it were also piped in, part of which is waiting for it to have data
+    # available.
+    #
+    # This isn't a great test since it depends on the implementation of join.
+    # Ideally, we should test that both left and right are treated like they
+    # are piped.
+    it 'waits for the right stream to have data', (done) ->
+      input = [1..5]
+      right_input = _.map input.concat([6..8]), (i) -> { key: i, right: true }
+      left_input = _.map input, (i) -> { key: i, left: true }
+
+      right = new Readable objectMode: true
+      # Simulate some data being loaded beforehand
+      right.push right_input[0]
+      i = 1
+      right._read = ->
+        # Simulate some data being loaded on demand
+        if i is 1
+          right.push right_input[i]
+          i += 1
+        # Simulate some data being loaded after a delay
+        else
+          setTimeout ->
+            right.push right_input[i]
+            i += 1
+          , 100
+
+      _(left_input).stream()
+        .join
+          from: right
+          on: 'key'
+          type: 'outer'
+          sorted: true
+        .run (err, data) ->
+          assert.ifError err
+          expected = combine_pairs merge_oracle left_input, right_input, 'key'
+          assert.deepEqual data, expected
           done()
