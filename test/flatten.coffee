@@ -11,7 +11,7 @@ match_underscore = (fn, input, args, cb) ->
     cb()
 tests = [
   {name: 'non-arrays', input: [1, 2]}
-  {name: 'arrays', input: [[3], [[4]]]}
+  {name: 'arrays', input: [[3], [4]]}
   {name: 'nested arrays', input: [[3], [[4]]]}
 ]
 run_with_args = (args) ->
