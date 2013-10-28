@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:join'
 util = require 'util'
-nextTick = require '../nextTick'
+async = require 'async'
 
 # If you want a quick overview of join semantics, check this out:
 # http://www.codinghorror.com/blog/2007/10/a-visual-explanation-of-sql-joins.html
@@ -99,10 +99,15 @@ class HashJoin extends Transform
     else
       @_buffer.push [chunk, cb]
 
+# This is a kind of tricky version of the usual merge algorithm since we want
+# to use a Transform stream. The instance itself will function as the left
+# stream.
 class SortedMergeJoin extends Transform
-  # This is a kind of tricky version of the usual merge algorithm since we want
-  # to use a Transform stream. The instance itself will function as the left
-  # stream.
+  # Hack to find out if a stream has no more data. This is totally not kosher
+  # since it relies on undocumented internals.
+  ended = (stream) ->
+    stream._readableState.ended and _.isEmpty stream._readableState.buffer
+
   constructor: (stream_opts, {@right, @key}) ->
     super stream_opts
 
@@ -110,28 +115,38 @@ class SortedMergeJoin extends Transform
   # ready, and blocks the left stream until we call cb, we need to do all the
   # processing necessary for that item and then call cb.
   _transform: (chunk, enc, cb) ->
-    next = -> nextTick cb
     l = chunk
-    while (r = @right.read())?
-      if l[@key] > r[@key]
-        @push r
-      else if l[@key] < r[@key]
-        @push l
-        # Put r back at the head of right so we can read it again next
-        # _transform or in _flush
-        @right.unshift r
-        return next()
-      else if l[@key] is r[@key]
-        @push _.extend {}, l, r
-        return next()
-    @push l
-    next()
+    # Loop asynchronously so that the right stream has time to set its
+    # internal state to signal that it's ended.
+    async.whilst (=> l? and not ended @right), (cb_w) =>
+      r = @right.read()
+      if r?
+        switch
+          when l[@key] > r[@key]
+            @push r
+          when l[@key] < r[@key]
+            @push l
+            # Put r back at the head of right so we can read it again next
+            # _transform or in _flush
+            @right.unshift r
+            l = null
+          when l[@key] is r[@key]
+            @push _.extend {}, l, r
+            l = null
+      setImmediate cb_w
+    , =>
+      @push l if l?
+      cb()
+
 
   # _flush is called when the stream is empty, so we need to also empty out the
   # right stream if there are any leftovers.
   _flush: (cb) ->
-    @push r while (r = @right.read())?
-    nextTick cb
+    async.whilst (=> not ended @right), (cb_w) =>
+      r = @right.read()
+      @push r if r?
+      setImmediate cb_w
+    , cb
 
 module.exports = class Join
   constructor: (@stream_opts, @options) ->
