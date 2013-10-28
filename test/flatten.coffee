@@ -9,24 +9,14 @@ match_underscore = (fn, input, args, cb) ->
     assert.ifError err
     assert.deepEqual result, _(input)[fn](args...)
     cb()
-
+tests = [
+  {name: 'non-arrays', input: [1, 2]}
+  {name: 'arrays', input: [[3], [[4]]]}
+  {name: 'nested arrays', input: [[3], [[4]]]}
+]
+run_with_args = (args) ->
+  _(tests).each (test) ->
+    it "#{test.name} match underscore", (done) -> match_underscore 'flatten', test.input, args, done
 describe '_.flatten', ->
-  describe 'shallow', ->
-    it 'non-arrays flatten right', (done) ->
-      match_underscore 'flatten', [1, 2], [true], done
-
-    it 'arrays flatten right', (done) ->
-      match_underscore 'flatten', [[3], [4]], [true], done
-
-    it 'nested arrays flatten right', (done) ->
-      match_underscore 'flatten', [[3], [[4]]], [true], done
-
-  describe 'deep', ->
-    it 'non-arrays flatten right', (done) ->
-      match_underscore 'flatten', [1, 2], done
-
-    it 'arrays flatten right', (done) ->
-      match_underscore 'flatten', [[3], [4]], done
-
-    it 'nested arrays flatten right', (done) ->
-      match_underscore 'flatten', [[3], [[4]]], done
+  describe 'shallow', -> run_with_args [true]
+  describe 'deep', -> run_with_args()
