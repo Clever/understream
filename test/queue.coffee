@@ -31,7 +31,7 @@ describe '_.queue', ->
           assert num_read - num_received <= concurrency
         .run done
 
-  it 'successfully handles an erorr in the queue', (done) ->
+  it 'successfully handles an error in the queue', (done) ->
     input  = [{a:'1', b:'2'}, {c:'2', d:'3'}]
     fn = (chunk, cb) -> setTimeout (-> cb 'some error', chunk), 10
     _(input).stream().queue(fn).run (err) ->
@@ -46,4 +46,12 @@ describe '_.queue', ->
       assert.deepEqual result, []
       assert.equal spy.callCount, 2
       assert.deepEqual spy.args[i][0], input[i] for i in input.length
+      done()
+
+  it 'supports arrays as items', (done) ->
+    input = [[1, 2], ['a', 'b', 'c'], []]
+    fn = (chunk, cb) -> setImmediate -> cb null, chunk
+    _(input).stream().queue({fn}).run (err, result) ->
+      assert.ifError err
+      assert.deepEqual result, input
       done()
