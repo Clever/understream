@@ -6,4 +6,5 @@ module.exports =
     instance? and
     _.isObject(instance) and
     instance instanceof EventEmitter and
-    instance.pipe?
+    instance.pipe? and
+    (instance._read? or instance.read? or instance.readable)

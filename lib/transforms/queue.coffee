@@ -24,9 +24,11 @@ module.exports = class Queue extends Transform
     # If the queue is full, we hold on to the callback to preserve backpressure
     async.whilst(
       => @_docs_in_queue() >= @options.concurrency
-      (cb_w) => setImmediate cb_w
+      (cb_w) -> setImmediate cb_w
       =>
-        @q.push chunk
+        # If given an array, async.queue.push pushes each element. If chunk is
+        # an array, we want it to be pushed as one item, so we wrap all chunks.
+        @q.push [chunk]
         cb()
     )
   _flush: (cb) =>
