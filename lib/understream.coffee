@@ -11,7 +11,8 @@ is_readable = (instance) ->
   instance? and
   _.isObject(instance) and
   instance instanceof EventEmitter and
-  instance.pipe?
+  instance.pipe? and
+  (instance._read? or instance.read? or instance.readable)
 
 pipe_streams_together = (streams...) ->
   return if streams.length < 2
@@ -67,9 +68,9 @@ module.exports = class Understream
       @batch Infinity
       batch_stream = _(@_streams).last()
       batch_stream.on 'finish', -> result = batch_stream._buffer
-    # If the final stream is a transform, attach a dummy writer to receive its output
+    # If the final stream is Readable, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
-    @_streams.push new DevNull() if _(@_streams).last()._transform?
+    @_streams.push new DevNull() if is_readable _(@_streams).last()
     dmn = domain.create()
     handler = (err) =>
       clearInterval interval
