@@ -23,11 +23,11 @@ describe '_.queue', ->
       queue_stream = _(input).stream().queue({fn, concurrency})
       old_transform = queue_stream.stream()._transform
       queue_stream.stream()._transform = ->
-        num_read++
+        num_read += 1
         old_transform.apply @, _(arguments).toArray()
       queue_stream
         .each (result) ->
-          num_received++
+          num_received += 1
           assert num_read - num_received <= concurrency
         .run done
 
