@@ -8,7 +8,7 @@ module.exports = class Queue extends Transform
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
-    _(@options).defaults concurrency: 1000
+    _(@options).defaults concurrency: @stream_opts.highWaterMark or 10
     @q = async.queue (payload, cb) =>
       return cb() if @_err # Don't try to keep processing if we've errored
       @options.fn payload, (err, out) =>

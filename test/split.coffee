@@ -39,7 +39,7 @@ describe '_.split', ->
   ].forEach (arg_spec) ->
     it "splits with a #{arg_spec.type} argument", (done) ->
       r = new Readable()
-      r.push "1\n2\n3\n"
+      r.push "1\n2\n3"
       r.push null
       r._read = () ->
       _(r).stream().split(arg_spec.arg).run (err, val) ->

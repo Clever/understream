@@ -3,7 +3,7 @@ assert = require 'assert'
 understream = require("#{__dirname}/../index")
 _.mixin understream.exports()
 
-bufs_to_lines = -> _.stream().split('\n').map(String).duplex()
+bufs_to_lines = -> _.stream().split('\n').map(String).filter((s) -> s.length > 0).duplex()
 understream.mixin bufs_to_lines, 'bufs_to_lines', true
 
 describe '_.spawn', ->
