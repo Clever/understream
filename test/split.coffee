@@ -10,13 +10,13 @@ domain_emitter = (domain_err) ->
 
 describe '_.split', ->
   it 'requires a sep argument', ->
-    assert.throws () ->
+    assert.throws ->
       _().stream().split()
     , /requires separator/
-    assert.throws () ->
+    assert.throws ->
       _().stream({}).split()
     , /requires separator/
-    assert.throws () ->
+    assert.throws ->
       _().stream({asdf:'asdf'}).split()
     , /requires separator/
 
@@ -41,7 +41,7 @@ describe '_.split', ->
       r = new Readable()
       r.push "1\n2\n3"
       r.push null
-      r._read = () ->
+      r._read = ->
       _(r).stream().split(arg_spec.arg).run (err, val) ->
         assert.ifError err
         assert.deepEqual _(val).map(String), ['1','2','3']
