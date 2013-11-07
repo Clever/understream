@@ -17,3 +17,4 @@ module.exports = class Batch extends Transform
   _flush: (cb) =>
     @push @_buffer if @_buffer.length > 0
     cb()
+  _extra_report_string: -> "#{@_buffer.length}"
