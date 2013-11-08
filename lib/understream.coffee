@@ -29,11 +29,7 @@ to_report_string = (stream) -> _([
 add_reporter = (streams) ->
   report = -> console.log _(streams).map(to_report_string).join(' | ')
   interval = setInterval report, 5000
-  # On error, clear the interval, remove the listener, and then reemit the
-  # error so the domain can catch it.
-  _(streams).each (stream) -> stream.once 'error', (args...) ->
-    clearInterval interval
-    stream.emit 'error', args...
+  _(streams).each (stream) -> stream.on 'error', -> clearInterval interval
   _(streams).last().on 'finish', -> clearInterval interval
 
 pipe_streams_together = (streams...) ->
@@ -90,13 +86,16 @@ module.exports = class Understream
     add_reporter @_streams
     dmn = domain.create()
     handler = (err) =>
+      dmn.dispose()
       if cb.length is 1
         cb err
       else
         cb err, result
     _(@_streams).last().on 'finish', handler
+    # Catch any errors thrown emitted by a stream with a handler
+    _(@_streams).each (stream) -> stream.on 'error', handler
+    # Catch any errors thrown from inside a stream with a domain
     dmn.on 'error', handler
-    dmn.add stream for stream in @_streams
     dmn.run =>
       debug 'running'
       pipe_streams_together @_streams...

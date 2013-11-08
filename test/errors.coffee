@@ -21,7 +21,6 @@ describe '_.stream error handling', ->
       bad_fn = (input, cb) ->
         if cnt++ is 0 then cb(null, input) else cb(new Error('one and done')) # emit
       _([1,2,3]).stream()[fn](bad_fn).run (err) ->
-        assert.equal was_thrown(err), false, "Expected error caught by domain to be emitted"
         assert.equal err.message, 'one and done'
         cb_fe()
     , done
@@ -44,7 +43,6 @@ describe '_.stream error handling', ->
       else
         setTimeout (()->cb(new Error('one and done'))), 500
     _([1,2,3]).stream().each(bad_fn).run (err) ->
-      assert.equal was_thrown(err), false, "Expected error caught by domain to be emitted"
       assert.equal err.message, 'one and done'
       done()
 
