@@ -1,7 +1,4 @@
-{Readable, Writable, PassThrough} = require 'stream'
-fs     = require('fs')
 _      = require 'underscore'
-domain = require 'domain'
 
 class _s
   constructor: (obj) ->
