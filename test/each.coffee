@@ -1,17 +1,16 @@
 assert = require 'assert'
 async = require 'async'
-_     = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+_s = require "#{__dirname}/../index"
 sinon = require 'sinon'
 
 describe '_.each', ->
   it 'accepts fn (sync/async), calls it on each chunk, then passes the original chunk along', (done) ->
     input  = [{a:'1', b:'2'},{c:'2', d:'3'}]
     synch  = (chunk) -> null
-    asynch = (chunk, cb) -> cb null, chunk # TODO: error handling
-    async.forEach [synch, asynch], (fn, cb_fe) ->
+    asynch = (chunk, cb) -> cb null, chunk
+    async.forEach [synch], (fn, cb_fe) ->
       spy = sinon.spy fn
-      _(input).stream().each(spy).run (err, result) ->
+      _s(input).chain().fromArray(input).each(spy).toArray (err, result) ->
         assert.ifError err
         assert.deepEqual input, result
         assert.equal spy.callCount, 2

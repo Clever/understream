@@ -2,8 +2,8 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:each'
 
-module.exports = class Each extends Transform
-  constructor: (@stream_opts, @options) ->
+class Each extends Transform
+  constructor: (@options, @stream_opts) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
     @options._async = @options.fn.length is 2
@@ -17,3 +17,9 @@ module.exports = class Each extends Transform
       @options.fn chunk
       @push chunk
       cb()
+
+module.exports =
+  each: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+    each = new Each options, stream_opts
+    readable.pipe each
+    each
