@@ -4,7 +4,7 @@ _ = require 'underscore'
 #     _s.each a, b
 # It can also be used as a function:
 #     _s(a).each b
-# In order to accomodate the latter case, all static methods also exist on _s.prototype
+# In order to accommodate the latter case, all static methods also exist on _s.prototype
 # Thus, in the constructor we detect if called as a function and return a properly new'd
 # instance of _s containing all the prototype methods.
 class _s
