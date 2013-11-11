@@ -17,7 +17,7 @@ _([
 ]).each (fn) -> _s[fn] = require("#{__dirname}/mixins/#{fn}")[fn]
 
 # Adapted from underscore's mixin
-# Add your own custom functions to the Underscore object.
+# Add your own custom functions to the Understream object.
 _s.mixin = (obj) ->
   _(obj).chain().functions().each (name) ->
     func = _s[name] = obj[name]
