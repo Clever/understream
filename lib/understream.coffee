@@ -26,30 +26,23 @@ class _s
   # Add a "chain" function, which will delegate to the wrapper
   @chain: (obj) -> _s(obj).chain()
 
+  # Start accumulating results
+  chain: ->
+    @_chain = true
+    @
+
   # Extracts the result from a wrapped and chained object.
   value: -> @_wrapped
 
+# Private helper function to continue chaining intermediate results
+result = (obj) ->
+  if @_chain then _s(obj).chain() else obj
 
-# Fill static methods on _s
 _([
   "fromArray"
   "fromString"
   "toArray"
   "each"
-]).each (fn) -> _s[fn] = require("#{__dirname}/mixins/#{fn}")[fn]
-
-# Helper function to continue chaining intermediate results
-result = (obj) ->
-  if @_chain then _s(obj).chain() else obj
-
-# Add all of the Understream functions to the wrapper object
-_s.mixin _s
-
-# _s.mixin just copied the static _s.chain to the prototype, which is incorrect
-# Fill in the correct method now
-_.extend _s.prototype,
-  chain: ->
-    @_chain = true
-    @
+]).each (fn) -> _s.mixin require("#{__dirname}/mixins/#{fn}")
 
 module.exports = _s
