@@ -14,6 +14,24 @@ is_readable = (instance) ->
   instance.pipe? and
   (instance._read? or instance.read? or instance.readable)
 
+state_to_string = (state) ->
+  if state?
+    (state.length or '') + (if state.objectMode then 'o' else 'b')
+  else ''
+
+to_report_string = (stream) -> _([
+  state_to_string stream._writableState
+  stream.constructor.name
+  stream._extra_report_string?()
+  state_to_string stream._readableState
+]).compact().join(' ')
+
+add_reporter = (streams) ->
+  report = -> console.log _(streams).map(to_report_string).join(' | ')
+  interval = setInterval report, 5000
+  _(streams).each (stream) -> stream.on 'error', -> clearInterval interval
+  _(streams).last().on 'finish', -> clearInterval interval
+
 pipe_streams_together = (streams...) ->
   return if streams.length < 2
   streams[i].pipe streams[i + 1] for i in [0..streams.length - 2]
@@ -55,12 +73,6 @@ module.exports = class Understream
   defaults: (@_defaults) => @
   run: (cb) =>
     throw new Error 'Understream::run requires an error handler' unless _(cb).isFunction()
-    report = =>
-      str = ''
-      _(@_streams).each (stream) ->
-        str += "#{stream.constructor.name}(#{stream._writableState?.length or ''} #{stream._readableState?.length or ''}) "
-      console.log str
-    interval = setInterval report, 5000
     # If the callback has arity 2, assume that they want us to aggregate all results in an array and
     # pass that to the callback.
     if cb.length is 2
@@ -71,24 +83,30 @@ module.exports = class Understream
     # If the final stream is Readable, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if is_readable _(@_streams).last()
+    add_reporter @_streams
     dmn = domain.create()
     handler = (err) =>
-      clearInterval interval
+      dmn.dispose()
       if cb.length is 1
         cb err
       else
         cb err, result
     _(@_streams).last().on 'finish', handler
+    # Catch any errors thrown emitted by a stream with a handler
+    _(@_streams).each (stream) -> stream.on 'error', handler
+    # Catch any errors thrown from inside a stream with a domain
     dmn.on 'error', handler
-    dmn.add stream for stream in @_streams
     dmn.run =>
       debug 'running'
       pipe_streams_together @_streams...
     @
   readable: => # If you want to get out of understream and access the raw stream
+    add_reporter @_streams
     pipe_streams_together @_streams...
     @_streams[@_streams.length - 1]
-  duplex: => new StreamCombiner @_streams...
+  duplex: =>
+    add_reporter @_streams
+    new StreamCombiner @_streams...
   stream: => @readable() # Just an alias for compatibility purposes
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance

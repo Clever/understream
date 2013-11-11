@@ -7,3 +7,7 @@ module.exports = class Process extends Duplex
     super _(@stream_opts).extend(objectMode: false)
     @on 'pipe', (source) => source.unpipe(@).pipe @process.stdin
   pipe: (dest, options) => @process.stdout.pipe dest, options
+  _extra_report_string: ->
+    "stdin:#{@process.stdin._writableState.length}" +
+    " pid:#{@process.pid}" +
+    " stdout:#{@process.stdout._readableState.length}"
