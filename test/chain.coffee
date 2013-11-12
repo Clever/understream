@@ -3,8 +3,16 @@ async = require 'async'
 _s = require "#{__dirname}/../index"
 sinon = require 'sinon'
 
-describe '_s(a).chain().fn1(b).fn2(c).value()', ->
-  it 'is equivalent to calling _s.fn2(_s.fn1(a, b), c)', ->
+describe '_s(a).chain()', ->
+  it "has the methods of _s", ->
+    assert _s().chain().each?
+    assert _s('a').chain().each?
+
+  it '.value() returns a', ->
+    assert.equal _s().chain().value(), undefined
+    assert.equal _s('a').chain().value(), 'a'
+
+  it '.fn1(b).fn2(c).value() is equivalent to calling _s.fn2(_s.fn1(a, b), c)', ->
     spy1 = sinon.spy -> 1
     spy2 = sinon.spy -> 2
     _s.mixin {fn1: spy1, fn2: spy2}
