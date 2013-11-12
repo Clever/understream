@@ -2,11 +2,15 @@ assert = require 'assert'
 async = require 'async'
 _s = require "#{__dirname}/../index"
 sinon = require 'sinon'
+_ = require 'underscore'
 
 describe '_s(a).chain()', ->
-  it "has the methods of _s", ->
-    assert _s().chain().each?
-    assert _s('a').chain().each?
+  it 'has the methods of _s excluding value/mixin', ->
+    for obj in [_s().chain(), _s('a').chain()]
+      assert.deepEqual(
+        _.chain().functions(obj).without('value').value()
+        _.chain().functions(_s).without('mixin').value()
+      )
 
   it '.value() returns a', ->
     assert.equal _s().chain().value(), undefined
