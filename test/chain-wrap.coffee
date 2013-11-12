@@ -4,61 +4,57 @@ _s = require "#{__dirname}/../index"
 sinon = require 'sinon'
 _ = require 'underscore'
 
-describe 'methods on wrapped/chained objects are the same as methods on _s', ->
-  for obj in [_s(), _s('a'), _s().chain(), _s('a').chain(), _s().chain().chain()]
-    assert.deepEqual(
-      _.chain().functions(obj).without('value').value()
-      _.chain().functions(_s).without('mixin').value()
-    )
+# Takes an array and returns an array of adjacent pairs of elements in the
+# array, wrapping around at the end.
+adjacent = (arr) ->
+  _.zip arr, _.rest(arr).concat [_.first arr]
 
-describe '_s(a)', ->
-  it 'binds a as the first argument to the next method invoked', ->
-    spy = sinon.spy ->
-    _s.mixin fn: spy
-    _s().fn(10)
-    _s().fn(10, 20)
-    _s('a').fn(10)
-    _s('a').fn(10, 20)
-    _s('a', 'b').fn(10)
-    _s('a', 'b').fn(10, 20)
-    assert.equal spy.callCount, 6
-    assert.deepEqual spy.args, [
-      [undefined, 10]
-      [undefined, 10, 20]
-      ['a', 10]
-      ['a', 10, 20]
-      ['a', 10]      # ignores > 1 argument
-      ['a', 10, 20]  # ignores > 1 argument
-    ]
+methods = (obj) ->
+  _.chain().functions(obj).without('value', 'mixin').value()
 
-  it '.fn(b) is equivalent to calling _s.fn(a,b)', ->
-    spy = sinon.spy ->
-    _s.mixin fn: spy
-    _s.fn 'a', 'b'
-    _s('a').fn('b')
-    assert.equal spy.callCount, 2
-    assert.deepEqual spy.args[0], ['a', 'b']
-    assert.deepEqual spy.args[0], spy.args[1]
+idSpy = -> sinon.spy (x) -> x
 
-  it '.missing() throws', ->
-    assert.throws () ->
-      _s('a').missing()
+testEquivalent = (exp1, exp2) ->
+  [spy1, spy2] = [idSpy(), idSpy()]
+  _s.mixin fn: spy1
+  v1 = exp1()
+  _s.mixin fn: spy2 # Relies on _s.mixin overwriting fn
+  v2 = exp2()
+  it 'return the same result', -> assert.deepEqual v1, v2
+  it 'have the same methods available on the result', -> assert.deepEqual methods(v1), methods(v2)
+  it 'call the method the same number of times', -> assert.equal spy1.callCount, spy2.callCount
+  it 'call the method with the same args', -> assert.deepEqual spy1.args, spy2.args
 
-describe '_s(a).chain()', ->
-  it '.value() returns a', ->
-    assert.equal _s().chain().value(), undefined
-    assert.equal _s('a').chain().value(), 'a'
+_.each
+  'no-op':
+    'plain'             : -> 'a'
+    'unwrapped chained' : -> _s.chain('a').value()
+    'wrapped chained'   : -> _s('a').chain().value()
+  'no-arg':
+    'unwrapped'         : -> _s.fn()
+    'wrapped'           : -> _s().fn()
+    'unwrapped chained' : -> _s.chain().fn().value()
+    'wrapped chained'   : -> _s().chain().fn().value()
+  'one-arg':
+    'unwrapped'         : -> _s.fn('a')
+    'wrapped'           : -> _s('a').fn()
+    'unwrapped chained' : -> _s.chain('a').fn().value()
+    'wrapped chained'   : -> _s('a').chain().fn().value()
+  'multi-arg':
+    'unwrapped'         : -> _s.fn('a', {b:1}, 2)
+    'wrapped'           : -> _s('a').fn({b:1}, 2)
+    'unwrapped chained' : -> _s.chain('a').fn({b:1}, 2).value()
+    'wrapped chained'   : -> _s('a').chain().fn({b:1}, 2).value()
+  'multiple functions':
+    'unwrapped'         : -> _s.fn _s.fn('a', 'b'), 'c'
+    'wrapped'           : -> _s(_s('a').fn('b')).fn('c')
+    'unwrapped chained' : -> _s.chain('a').fn('b').fn('c').value()
+    'wrapped chained'   : -> _s('a').chain().fn('b').fn('c').value()
 
-  it '.fn1(b).fn2(c).value() is equivalent to calling _s.fn2(_s.fn1(a, b), c)', ->
-    spy1 = sinon.spy -> 1
-    spy2 = sinon.spy -> 2
-    _s.mixin {fn1: spy1, fn2: spy2}
-    val = _s('a').chain().fn1('b').fn2('c').value()
-    assert.equal val, 2
-    assert.equal val, _s.fn2(_s.fn1('a', 'b'), 'c')
-    assert.equal spy1.callCount, 2
-    assert.equal spy2.callCount, 2
-    assert.deepEqual spy1.args[0], ['a', 'b']
-    assert.deepEqual spy1.args[1], ['a', 'b']
-    assert.deepEqual spy2.args[0], [1, 'c']
-    assert.deepEqual spy2.args[1], [1, 'c']
+, (exps, desc) ->
+  describe desc, ->
+    # Since equivalence is transitive, to assert that a group of expressions
+    # are equivalent, we can assert that each one is equivalent to one other
+    # one.
+    _.each adjacent(_.pairs(exps)), ([[name1, exp1], [name2, exp2]]) ->
+      describe "#{name1}/#{name2}", -> testEquivalent exp1, exp2
