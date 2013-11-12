@@ -5,7 +5,7 @@ sinon = require 'sinon'
 _ = require 'underscore'
 
 describe 'methods on wrapped/chained objects are the same as methods on _s', ->
-  for obj in [_s(), _s('a'), _s().chain(), _s('a').chain()]
+  for obj in [_s(), _s('a'), _s().chain(), _s('a').chain(), _s().chain().chain()]
     assert.deepEqual(
       _.chain().functions(obj).without('value').value()
       _.chain().functions(_s).without('mixin').value()
