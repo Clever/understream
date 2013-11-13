@@ -1,6 +1,6 @@
 assert = require 'assert'
 async = require 'async'
-_s = require "#{__dirname}/../index"
+_sMaker = require "../lib/understream"
 sinon = require 'sinon'
 _ = require 'underscore'
 
@@ -12,14 +12,12 @@ adjacent = (arr) ->
 methods = (obj) ->
   _.chain().functions(obj).without('value', 'mixin').value()
 
-idSpy = -> sinon.spy (x) -> x
-
 testEquivalent = (exp1, exp2) ->
-  [spy1, spy2] = [idSpy(), idSpy()]
-  _s.mixin fn: spy1
-  v1 = exp1()
-  _s.mixin fn: spy2 # Relies on _s.mixin overwriting fn
-  v2 = exp2()
+  [[v1, spy1], [v2, spy2]] = _.map [exp1, exp2], (exp) ->
+    spy = sinon.spy (x) -> x
+    _s = _sMaker()
+    _s.mixin fn: spy
+    [exp(_s), spy]
   it 'return the same result', -> assert.deepEqual v1, v2
   it 'have the same methods available on the result', -> assert.deepEqual methods(v1), methods(v2)
   it 'call the method the same number of times', -> assert.equal spy1.callCount, spy2.callCount
@@ -27,29 +25,29 @@ testEquivalent = (exp1, exp2) ->
 
 _.each
   'no-op':
-    'plain'             : -> 'a'
-    'unwrapped chained' : -> _s.chain('a').value()
-    'wrapped chained'   : -> _s('a').chain().value()
+    'plain'             : (_s) -> 'a'
+    'unwrapped chained' : (_s) -> _s.chain('a').value()
+    'wrapped chained'   : (_s) -> _s('a').chain().value()
   'no-arg':
-    'unwrapped'         : -> _s.fn()
-    'wrapped'           : -> _s().fn()
-    'unwrapped chained' : -> _s.chain().fn().value()
-    'wrapped chained'   : -> _s().chain().fn().value()
+    'unwrapped'         : (_s) -> _s.fn()
+    'wrapped'           : (_s) -> _s().fn()
+    'unwrapped chained' : (_s) -> _s.chain().fn().value()
+    'wrapped chained'   : (_s) -> _s().chain().fn().value()
   'one-arg':
-    'unwrapped'         : -> _s.fn('a')
-    'wrapped'           : -> _s('a').fn()
-    'unwrapped chained' : -> _s.chain('a').fn().value()
-    'wrapped chained'   : -> _s('a').chain().fn().value()
+    'unwrapped'         : (_s) -> _s.fn('a')
+    'wrapped'           : (_s) -> _s('a').fn()
+    'unwrapped chained' : (_s) -> _s.chain('a').fn().value()
+    'wrapped chained'   : (_s) -> _s('a').chain().fn().value()
   'multi-arg':
-    'unwrapped'         : -> _s.fn('a', {b:1}, 2)
-    'wrapped'           : -> _s('a').fn({b:1}, 2)
-    'unwrapped chained' : -> _s.chain('a').fn({b:1}, 2).value()
-    'wrapped chained'   : -> _s('a').chain().fn({b:1}, 2).value()
+    'unwrapped'         : (_s) -> _s.fn('a', {b:1}, 2)
+    'wrapped'           : (_s) -> _s('a').fn({b:1}, 2)
+    'unwrapped chained' : (_s) -> _s.chain('a').fn({b:1}, 2).value()
+    'wrapped chained'   : (_s) -> _s('a').chain().fn({b:1}, 2).value()
   'multiple functions':
-    'unwrapped'         : -> _s.fn _s.fn('a', 'b'), 'c'
-    'wrapped'           : -> _s(_s('a').fn('b')).fn('c')
-    'unwrapped chained' : -> _s.chain('a').fn('b').fn('c').value()
-    'wrapped chained'   : -> _s('a').chain().fn('b').fn('c').value()
+    'unwrapped'         : (_s) -> _s.fn _s.fn('a', 'b'), 'c'
+    'wrapped'           : (_s) -> _s(_s('a').fn('b')).fn('c')
+    'unwrapped chained' : (_s) -> _s.chain('a').fn('b').fn('c').value()
+    'wrapped chained'   : (_s) -> _s('a').chain().fn('b').fn('c').value()
 
 , (exps, desc) ->
   describe desc, ->

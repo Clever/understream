@@ -1,48 +1,50 @@
 _ = require 'underscore'
 
-# The understream object can be used as an object with static methods:
-#     _s.each a, b
-# It can also be used as a function:
-#     _s(a).each b
-# In order to accommodate the latter case, all static methods also exist on _s.prototype
-# Thus, in the constructor we detect if called as a function and return a properly new'd
-# instance of _s containing all the prototype methods.
-class _s
-  constructor: (obj) ->
-    return new _s(obj) if not (@ instanceof _s)
-    @_wrapped = obj
+module.exports = ->
 
-  # Adapted from underscore's mixin
-  # Add your own custom functions to the Understream object.
-  @mixin: (obj) ->
-    _(obj).chain().functions().each (name) ->
-      func = _s[name] = obj[name]
-      _s.prototype[name] = ->
-        args = [@_wrapped]
-        args.push arguments...
-        res = result.call @, func.apply(_s, args)
-        res
+  # The understream object can be used as an object with static methods:
+  #     _s.each a, b
+  # It can also be used as a function:
+  #     _s(a).each b
+  # In order to accommodate the latter case, all static methods also exist on _s.prototype
+  # Thus, in the constructor we detect if called as a function and return a properly new'd
+  # instance of _s containing all the prototype methods.
+  class _s
+    constructor: (obj) ->
+      return new _s(obj) if not (@ instanceof _s)
+      @_wrapped = obj
 
-  # Add a "chain" function, which will delegate to the wrapper
-  @chain: (obj) -> _s(obj).chain()
+    # Adapted from underscore's mixin
+    # Add your own custom functions to the Understream object.
+    @mixin: (obj) ->
+      _(obj).chain().functions().each (name) ->
+        func = _s[name] = obj[name]
+        _s.prototype[name] = ->
+          args = [@_wrapped]
+          args.push arguments...
+          res = result.call @, func.apply(_s, args)
+          res
 
-  # Start accumulating results
-  chain: ->
-    @_chain = true
-    @
+    # Add a "chain" function, which will delegate to the wrapper
+    @chain: (obj) -> _s(obj).chain()
 
-  # Extracts the result from a wrapped and chained object.
-  value: -> @_wrapped
+    # Start accumulating results
+    chain: ->
+      @_chain = true
+      @
 
-# Private helper function to continue chaining intermediate results
-result = (obj) ->
-  if @_chain then _s(obj).chain() else obj
+    # Extracts the result from a wrapped and chained object.
+    value: -> @_wrapped
 
-_([
-  "fromArray"
-  "fromString"
-  "toArray"
-  "each"
-]).each (fn) -> _s.mixin require("#{__dirname}/mixins/#{fn}")
+  # Private helper function to continue chaining intermediate results
+  result = (obj) ->
+    if @_chain then _s(obj).chain() else obj
 
-module.exports = _s
+  _([
+    "fromArray"
+    "fromString"
+    "toArray"
+    "each"
+  ]).each (fn) -> _s.mixin require("#{__dirname}/mixins/#{fn}")
+
+  _s
