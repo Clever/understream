@@ -22,6 +22,8 @@ module.exports = ->
         _s.prototype[name] = ->
           args = [@_wrapped]
           args.push arguments...
+          # pop undefineds so that _s.fn() is equivalent to _s().fn()
+          args.pop() while args.length and _(args).last() is undefined
           res = result.call @, func.apply(_s, args)
           res
 
