@@ -3,7 +3,7 @@ _      = require 'underscore'
 debug  = require('debug') 'us:map'
 
 module.exports = class Map extends Transform
-  constructor: (@stream_opts, @options) ->
+  constructor: (@options, @stream_opts) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
     @options._async = @options.fn.length is 2
@@ -17,3 +17,7 @@ module.exports = class Map extends Transform
     else
       @push @options.fn(chunk)
       cb()
+
+module.exports =
+  map: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+    readable.pipe(new Map options, stream_opts)

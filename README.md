@@ -13,6 +13,7 @@ It provides three classes of functionality:
 2. Functions that take a Readable stream and transform its data, returning a new readable stream:
 
   * [`each`](#each)
+  * [`map`](#map)
 
 3. Functions that allow you to create chains of transformations:
 
@@ -114,7 +115,7 @@ If it has two arguments, it is assumed to be asynchronous (`(element, cb)`).
 
 ```javascript
 var readable = _s.fromArray([3, 4, 5, 6]);
-_s.each(readable console.log);
+_s.each(readable, console.log);
 // 3
 // 4
 // 5
