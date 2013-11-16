@@ -10,11 +10,11 @@ It provides three classes of functionality:
   * [`fromString`](#fromArray)
   * [`toArray`](#toArray)
 
-2. Functions that take a Readable stream and transform its data:
+2. Functions that take a Readable stream and transform its data, returning a new readable stream:
 
   * [`each`](#each)
 
-3. Functions that allow you to create chains of transformations
+3. Functions that allow you to create chains of transformations:
 
   * [`chain`](#chain)
   * [`value`](#value)
@@ -77,6 +77,7 @@ readable.on("data", console.log);
 // 6
 ```
 
+---
 #### <a name="fromString">fromString</a> `_s.fromString(string)`
 
 Turns a string into a readable stream of the characters within the string.
@@ -90,6 +91,7 @@ readable.on("data", console.log);
 // 6
 ```
 
+---
 #### <a name="toArray">toArray</a> `_s.toArray(readable, cb)`
 
 Reads a stream into an array of the data emitted by the stream.
@@ -103,19 +105,40 @@ _s.toArray(readable, function(err, arr) {
 // [ 3, 4, 5, 6 ]
 ```
 
+---
 #### <a name="each">each</a> `_s.each(readable, iterator)`
 
-Calls the iterator function on each object in your stream, and passes the same object through when your interator function is done. If the iterator function has one argument (`(element)`), it is assumed to be synchronous. If it has two arguments, it is assumed to be asynchronous (`(element, cb)`).
+Calls the iterator function on each object in your stream, and emits the same object when your interator function is done.
+If the iterator function has one argument (`(element)`), it is assumed to be synchronous.
+If it has two arguments, it is assumed to be asynchronous (`(element, cb)`).
 
 ```javascript
-var readable = _s(_s.fromArray([3, 4, 5, 6])).value();
-readable.on("data", console.log);
+var readable = _s.fromArray([3, 4, 5, 6]);
+_s.each(readable console.log);
 // 3
 // 4
 // 5
 // 6
 ```
 
+---
+#### <a name="map">map</a> `_s.map(readable, iterator)`
+
+Makes a new stream that is the result of calling `iterator` on each piece of data in `readable`.
+If the iterator function has one argument (`(element)`), it is assumed to be synchronous.
+If it has two arguments, it is assumed to be asynchronous (`(element, cb)`).
+
+```javascript
+var readable = _s.fromArray([3.3, 4.1, 5.2, 6.4]));
+var mapped = _s.map(readable, Math.floor);
+mapped.on("data", console.log);
+// 3
+// 4
+// 5
+// 6
+```
+
+---
 #### <a name="chain">chain</a> `_s.chain(obj)`
 
 Analagous to underscore's `chain`: returns a wrapped object with all the methods of understream.
@@ -128,6 +151,7 @@ _s.chain(_s.fromArray([3, 4, 5, 6])).each(console.log)
 // 6
 ```
 
+---
 #### <a name="value">value</a> `_s.chain(obj)`
 
 Analagous to underscore's `value`: exits a chain and returns the return value of the last method called.
@@ -202,8 +226,6 @@ _.stream([3, 4, 5, 6]).first(2).each(console.log).run()
 ### Invoke
 
 ### Join
-
-### Map
 
 ### Process
 
