@@ -17,6 +17,7 @@ It provides three classes of functionality:
   * [`filter`](#filter)
   * [`where`](#where)
   * [`invoke`](#invoke)
+  * [`groupBy`](#groupBy)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -238,6 +239,30 @@ var invoked = _s.invoke(readable, 'm');
 invoked.on('data', console.log);
 // 1
 // 2
+```
+
+---
+#### <a name="groupBy">groupBy</a> `_s.groupBy(readable, options)`
+
+When `options` is a function, creates a stream that will emit an object representing the groupings of the data in `readable` partitioned by the function.
+
+```javascript
+var readable = _s.fromArray([1.3, 2.1, 2.4]);
+var grouped = _s.groupBy(readable, Math.floor);
+grouped.on('data', console.log);
+// { '1': [ 1.3 ], '2': [ 2.1, 2.4 ] }
+```
+
+Alternatively, `options` can be an object containing the following keys:
+* `fn`: the function to apply to data coming through `readable`.
+* `unpack`: emit each grouping as a separate object.
+
+```javascript
+var readable = _s.fromArray([1.3, 2.1, 2.4]);
+var grouped = _s.groupBy(readable, {fn: Math.floor, unpack: true});
+grouped.on('data', console.log);
+// { '1': [ 1.3 ] }
+// { '2': [ 2.1, 2.4 ] }
 ```
 
 ---
