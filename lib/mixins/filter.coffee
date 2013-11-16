@@ -17,6 +17,9 @@ module.exports = class Filter extends Transform
       @push chunk if @options.fn chunk
       cb()
 
+fn = (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+  readable.pipe(new Filter options, stream_opts)
+
 module.exports =
-  filter: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    readable.pipe(new Filter options, stream_opts)
+  filter: fn
+  select: fn

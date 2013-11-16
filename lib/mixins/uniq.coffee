@@ -32,6 +32,9 @@ class Uniq
     hash_fn ?= String
     return new (if sorted then SortedUniq else UnsortedUniq) hash_fn, stream_opts
 
+fn = (readable, sorted, hash_fn, stream_opts={objectMode:readable._readableState.objectMode}) ->
+  readable.pipe(new Uniq sorted, hash_fn, stream_opts)
+
 module.exports =
-  uniq: (readable, sorted, hash_fn, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    readable.pipe(new Uniq sorted, hash_fn, stream_opts)
+  uniq: fn
+  unique: fn

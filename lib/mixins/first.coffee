@@ -11,6 +11,10 @@ module.exports = class First extends Transform
       return
     cb null, chunk
 
+fn = (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+  readable.pipe(new First options, stream_opts)
+
 module.exports =
-  first: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    readable.pipe(new First options, stream_opts)
+  first: fn
+  head: fn
+  take: fn

@@ -18,6 +18,8 @@ class Each extends Transform
       @push chunk
       cb()
 
+fn = (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+  readable.pipe(new Each options, stream_opts)
 module.exports =
-  each: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    readable.pipe(new Each options, stream_opts)
+  each: fn
+  forEach: fn

@@ -129,6 +129,8 @@ _s.each(readable, console.log);
 // 6
 ```
 
+*aliases*: `forEach`
+
 ---
 #### <a name="map">map</a> `_s.map(readable, iterator)`
 
@@ -145,6 +147,8 @@ mapped.on("data", console.log);
 // 5
 // 6
 ```
+
+*aliases*: `collect`
 
 ---
 #### <a name="reduce">reduce</a> `_s.reduce(readable, options)`
@@ -192,6 +196,8 @@ reduced.on('data', console.log);
 // { a: 3, b: [ 2 ] }
 ```
 
+*aliases*: `inject`, `foldl`
+
 ---
 #### <a name="filter">filter</a> `_s.filter(readable, iterator)`
 
@@ -209,6 +215,8 @@ filtered.on('data', console.log);
 // 2
 // 4
 ```
+
+*aliases*: `select`
 
 ---
 #### <a name="where">where</a> `_s.where(readable, attrs)`
@@ -284,6 +292,8 @@ first.on('data', console.log);
 // 3
 ```
 
+*aliases*: `head`, `take`
+
 ---
 #### <a name="rest">rest</a> `_s.rest(readable[, n])`
 
@@ -297,6 +307,8 @@ rest.on('data', console.log);
 // 4
 // 5
 ```
+
+*aliases*: `tail`, `drop`
 
 ---
 #### <a name="flatten">flatten</a> `_s.flatten(readable[, shallow])`
@@ -333,6 +345,8 @@ uniq.on('data', console.log);
 // 2
 // 1
 ```
+
+*aliases*: `unique`
 
 ---
 #### <a name="chain">chain</a> `_s.chain(obj)`

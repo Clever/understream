@@ -9,6 +9,10 @@ class Rest extends Transform
     return cb() if @seen < @rest
     cb null, chunk
 
+fn = (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+  readable.pipe(new Rest options, stream_opts)
+
 module.exports =
-  rest: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    readable.pipe(new Rest options, stream_opts)
+  rest: fn
+  tail: fn
+  drop: fn

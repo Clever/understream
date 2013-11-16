@@ -18,6 +18,9 @@ class Map extends Transform
       @push @options.fn(chunk)
       cb()
 
+fn = (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+  readable.pipe(new Map options, stream_opts)
+
 module.exports =
-  map: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    readable.pipe(new Map options, stream_opts)
+  map: fn
+  collect: fn

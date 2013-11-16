@@ -25,6 +25,10 @@ class Reduce extends Transform
       @_val = @options.fn @_val, chunk
     cb()
 
+fn = (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+  readable.pipe(new Reduce options, stream_opts)
+
 module.exports =
-  reduce: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    readable.pipe(new Reduce options, stream_opts)
+  reduce: fn
+  inject: fn
+  foldl: fn
