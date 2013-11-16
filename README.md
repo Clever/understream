@@ -11,14 +11,12 @@ It provides three classes of functionality:
   * [`toArray`](#toArray)
 
 2. Functions that take a Readable stream and transform its data, returning a new readable stream:
-
   * [`each`](#each)
   * [`map`](#map)
   * [`reduce`](#map)
 
 
 3. Functions that allow you to create chains of transformations:
-
   * [`chain`](#chain)
   * [`value`](#value)
 
