@@ -19,6 +19,7 @@ It provides three classes of functionality:
   * [`invoke`](#invoke)
   * [`groupBy`](#groupBy)
   * [`first`](#first)
+  * [`rest`](#rest)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -279,6 +280,20 @@ first.on('data', console.log);
 // 1
 // 2
 // 3
+```
+
+---
+#### <a name="rest">rest</a> `_s.rest(readable[, n])`
+
+Returns a stream that skips over the first `n` objects in `readable`.
+`n` equals 1 by default.
+
+```javascript
+var readable = _s.fromArray([1, 2, 3, 4, 5]);
+var rest = _s.rest(readable, 3);
+rest.on('data', console.log);
+// 4
+// 5
 ```
 
 ---
