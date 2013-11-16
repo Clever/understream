@@ -2,20 +2,29 @@
 
 # Understream
 
-Understream is a Node.js utility for manipulating streams in a functional way. It provides streaming versions of many of the same functions that [underscore](http://underscorejs.org) provides for arrays and objects.
+Understream is a Node utility for manipulating streams in a functional way.
+It provides three classes of functionality:
 
-Understream is intended to be used with underscore:
-```javascript
-var _ = require('underscore');
-var understream = require('understream');
-_.mixin(understream.exports());
-```
+1. Functions to convert data to [Readable](http://nodejs.org/api/stream.html#stream_class_stream_readable) streams and vice versa:
+  * [`fromArray`](#fromArray)
+  * [`fromString`](#fromArray)
+  * [`toArray`](#toArray)
 
-Out of the box, it supports many underscore-like functions:
+2. Functions that take a Readable stream and transform its data:
+
+  * [`each`](#each)
+
+3. Functions that allow you to create chains of transformations
+
+  * [`chain`](#chain)
+  * [`value`](#value)
+
+The library has underscore-like usage:
+
 ```javascript
-_.stream([3, 4, 5, 6]).map(function (num) { return num+10 }).each(console.log).run(function (err) {
-    console.log("ERR:", err);
-});
+var _s = require('understream');
+input = _.fromArray([3, 4, 5, 6]);
+_s.chain(input).map(function(num) {return num+10}).each(console.log);
 # 13
 # 14
 # 15
@@ -26,17 +35,27 @@ It also makes it very easy to mix in your own streams:
 
 ```javascript
 var Transform = require('stream').Transform
+var util = require('util');
+var _s = require('understream');
+
+util.inherits(Math, Transform);
+
 function Math(stream_opts) {
     Transform.call(this, stream_opts);
 }
+
 Math.prototype._transform = function (num, enc, cb) {
     cb(null, num+10);
-}
-util.inherits(Math, Transform);
-understream.mixin(Math, 'add10')
-_.stream([3, 4, 5, 6]).add10().each(console.log).run(function (err) {
-    console.log("ERR:", err);
+};
+
+_s.mixin({
+    add10: function(readable, stream_opts) {
+      return readable.pipe(new Math(stream_opts));
+    }
 });
+
+input = _s.fromArray([3, 4, 5, 6]);
+_s(input).chain().add10({objectMode:true}).each(console.log);
 # 13
 # 14
 # 15
