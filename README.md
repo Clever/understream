@@ -21,6 +21,7 @@ It provides three classes of functionality:
   * [`first`](#first)
   * [`rest`](#rest)
   * [`flatten`](#flatten)
+  * [`uniq`](#uniq)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -316,6 +317,24 @@ flatten.on('data', console.log);
 ```
 
 ---
+#### <a name="uniq">uniq</a> `_s.uniq(readable[, sorted, hash_fn])`
+
+Returns a stream that emits the unique elements of `readable`.
+Assumes the input is unsorted unless `sorted` is set to true.
+Uses builtin comparison unless `hash_fn` is specified.
+Alternatively you can specify one argument containing both parameters: `{sorted: ..., hash_fn: ...}`.
+
+```javascript
+var readable = _s.fromArray([4, 4, 3, 2, 1])
+var uniq = _s.uniq(readable);
+uniq.on('data', console.log);
+// 4
+// 3
+// 2
+// 1
+```
+
+---
 #### <a name="chain">chain</a> `_s.chain(obj)`
 
 Analagous to underscore's `chain`: returns a wrapped object with all the methods of understream.
@@ -380,7 +399,5 @@ _.stream().file(path_to_file).split('\n').each(console.log).run()
 ### Spawn
 
 ### Split
-
-### Uniq
 
 --!>

@@ -2,8 +2,8 @@ _ = require 'underscore'
 {Transform} = require 'stream'
 
 class SortedUniq extends Transform
-  constructor: (@stream_opts, @hash_fn) ->
-    super @stream_opts
+  constructor: (@hash_fn, stream_opts) ->
+    super stream_opts
     @last = null
   _transform: (obj, encoding, cb) =>
     hash = @hash_fn obj
@@ -12,8 +12,8 @@ class SortedUniq extends Transform
     cb null, obj
 
 class UnsortedUniq extends Transform
-  constructor: (@stream_opts, @hash_fn) ->
-    super @stream_opts
+  constructor: (@hash_fn, stream_opts) ->
+    super stream_opts
     @seen = {}
   _transform: (obj, encoding, cb) =>
     hash = @hash_fn obj
@@ -21,8 +21,8 @@ class UnsortedUniq extends Transform
     @seen[hash] = true
     cb null, obj
 
-module.exports = class Uniq
-  constructor: (stream_opts, sorted, hash_fn) ->
+class Uniq
+  constructor: (sorted, hash_fn, stream_opts) ->
     if _(sorted).isFunction() # For underscore-style arguments
       hash_fn = sorted
       sorted = false
@@ -30,4 +30,8 @@ module.exports = class Uniq
       hash_fn = sorted.hash_fn
       sorted = sorted.sorted
     hash_fn ?= String
-    return new (if sorted then SortedUniq else UnsortedUniq) stream_opts, hash_fn
+    return new (if sorted then SortedUniq else UnsortedUniq) hash_fn, stream_opts
+
+module.exports =
+  uniq: (readable, sorted, hash_fn, stream_opts={objectMode:readable._readableState.objectMode}) ->
+    readable.pipe(new Uniq sorted, hash_fn, stream_opts)
