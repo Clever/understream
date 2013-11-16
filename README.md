@@ -25,10 +25,10 @@ The library has underscore-like usage:
 var _s = require('understream');
 input = _.fromArray([3, 4, 5, 6]);
 _s.chain(input).map(function(num) {return num+10}).each(console.log);
-# 13
-# 14
-# 15
-# 16
+// 13
+// 14
+// 15
+// 16
 ```
 
 It also makes it very easy to mix in your own streams:
@@ -56,10 +56,10 @@ _s.mixin({
 
 input = _s.fromArray([3, 4, 5, 6]);
 _s(input).chain().add10({objectMode:true}).each(console.log);
-# 13
-# 14
-# 15
-# 16
+// 13
+// 14
+// 15
+// 16
 ```
 
 ## Methods
@@ -83,13 +83,13 @@ _.stream([3, 4, 5, 6]).batch(3).each(console.log).run()
 # [6]
 ```
 
-### Each (transform)
-`.each(iterator)`
+### <a name="each">Each</a>
+`_s.each(readable, iterator)`
 
 Calls the iterator function on each object in your stream, and passes the same object through when your interator function is done. If the iterator function has one argument (`(element)`), it is assumed to be synchronous. If it has two arguments, it is assumed to be asynchronous (`(element, cb)`).
 
 ```javascript
-_.stream([3, 4, 5, 6]).each(console.log).run()
+_s(_.fromArray([3, 4, 5, 6])).each(console.log)
 # 3
 # 4
 # 5
