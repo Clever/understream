@@ -20,6 +20,4 @@ class Each extends Transform
 
 module.exports =
   each: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
-    each = new Each options, stream_opts
-    readable.pipe each
-    each
+    readable.pipe(new Each options, stream_opts)

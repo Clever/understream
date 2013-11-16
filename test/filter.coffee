@@ -1,7 +1,7 @@
 assert = require 'assert'
 async = require 'async'
 _     = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+_s    = require "#{__dirname}/../index"
 sinon = require 'sinon'
 
 describe '_.filter', ->
@@ -12,7 +12,7 @@ describe '_.filter', ->
     expected = input.slice 0, 1
     async.forEach [synch, asynch], (fn, cb_fe) ->
       spy = sinon.spy fn
-      _(input).stream().filter(spy).run (err, result) ->
+      _s(_s.fromArray input).chain().filter(spy).toArray (err, result) ->
         assert.ifError err
         assert.deepEqual expected, result
         assert.equal spy.callCount, 2

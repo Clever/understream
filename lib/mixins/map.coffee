@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:map'
 
-module.exports = class Map extends Transform
+class Map extends Transform
   constructor: (@options, @stream_opts) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()

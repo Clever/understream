@@ -14,7 +14,7 @@ It provides three classes of functionality:
   * [`each`](#each)
   * [`map`](#map)
   * [`reduce`](#reduce)
-
+  * [`filter`](#filter)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -183,6 +183,24 @@ reduced.on('data', console.log);
 // { a: 1, b: [ 2, 3, 4 ] }
 // { a: 2, b: [ 1 ] }
 // { a: 3, b: [ 2 ] }
+```
+
+---
+#### <a name="filter">filter</a> `_s.filter(readable, iterator)`
+
+Returns a readable stream that emits all data from `readable` that passes `iterator`.
+If it has only one argument, `iterator` is assumed to be synchronous.
+If it has two arguments, it is assumed to return its result asynchronously.
+
+```javascript
+var readable = _s.fromArray([1, 2, 3, 4]);
+var filtered = _s.filter(readable, function(num) { return num % 2 === 0 });
+// var filtered = _s.filter(readable, function(num, cb) {
+//    setTimeout(function() { cb(null, num % 2 === 0); }, 1000);
+// });
+filtered.on('data', console.log);
+// 2
+// 4
 ```
 
 ---

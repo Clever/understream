@@ -3,7 +3,7 @@ _      = require 'underscore'
 debug  = require('debug') 'us:filter'
 
 module.exports = class Filter extends Transform
-  constructor: (@stream_opts, @options) ->
+  constructor: (@options, @stream_opts) ->
     super @stream_opts
     @options = { fn: @options } if _(@options).isFunction()
     @options._async = true if @options.fn.length is 2
@@ -16,3 +16,7 @@ module.exports = class Filter extends Transform
     else
       @push chunk if @options.fn chunk
       cb()
+
+module.exports =
+  filter: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+    readable.pipe(new Filter options, stream_opts)

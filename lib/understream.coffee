@@ -49,6 +49,7 @@ module.exports = ->
     "each"
     "map"
     "reduce"
+    "filter"
   ]).each (fn) -> _s.mixin require("#{__dirname}/mixins/#{fn}")
 
   _s

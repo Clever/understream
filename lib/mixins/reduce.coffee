@@ -2,7 +2,7 @@
 _      = require 'underscore'
 debug  = require('debug') 'us:reduce'
 
-module.exports = class Reduce extends Transform
+class Reduce extends Transform
   constructor: (@options, @stream_opts) ->
     super @stream_opts
     # TODO @options._async = _(@options).isFunction and @options.fn.length is 2
