@@ -15,6 +15,7 @@ It provides three classes of functionality:
   * [`map`](#map)
   * [`reduce`](#reduce)
   * [`filter`](#filter)
+  * [`where`](#where)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -201,6 +202,25 @@ var filtered = _s.filter(readable, function(num) { return num % 2 === 0 });
 filtered.on('data', console.log);
 // 2
 // 4
+```
+
+---
+#### <a name="where">where</a> `_s.where(readable, attrs)`
+
+Filters `readable` to emit only objects that contain the attributes in the `attrs` object.
+
+```javascript
+var readable = _s.fromArray([
+  {a: 1, b: 2},
+  {a: 2, b: 2},
+  {a: 1, b: 3},
+  {a: 1, b: 4}
+])
+var whered = _s.where(readable, {a:1});
+whered.on('data', console.log);
+// { a: 1, b: 2 }
+// { a: 1, b: 3 }
+// { a: 1, b: 4 }
 ```
 
 ---
