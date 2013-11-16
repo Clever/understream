@@ -14,6 +14,8 @@ It provides three classes of functionality:
 
   * [`each`](#each)
   * [`map`](#map)
+  * [`reduce`](#map)
+
 
 3. Functions that allow you to create chains of transformations:
 
@@ -137,6 +139,52 @@ mapped.on("data", console.log);
 // 4
 // 5
 // 6
+```
+
+---
+#### <a name="reduce">reduce</a> `_s.reduce(readable, options)`
+
+Boils a stream down to a single value. `options` takes in:
+* `base`: value or function that represents/returns the initial state of the reduction.
+* `fn`: function that takes in two arguments: the current state of the reduction, and a new piece of incoming data, and returns the updated state of the reduction.
+* `key`: optional function to apply to incoming data in order to partition the incoming data into separate reductions.
+
+```javascript
+var readable = _s.fromArray([1, 2, 3]);
+var reduced = _s.reduce(readable, {
+  base: 0,
+  fn: function(a, b) { return a + b; }
+});
+reduced.on('data', console.log);
+// 6
+```
+
+```javascript
+var readable = _s.fromArray([
+  {a: 1, b: 2},
+  {a: 1, b: 3},
+  {a: 1, b: 4},
+  {a: 2, b: 1},
+  {a: 3, b: 2}
+]);
+var reduced = _s.reduce(readable, {
+  base: function() { return {}; },
+  key: function(new_obj) { return new_obj.a; },
+  fn: function(obj, new_obj) {
+    if (obj.b == null) {
+      obj = {
+        a: new_obj.a,
+        b: []
+      };
+    }
+    obj.b.push(new_obj.b);
+    return obj;
+  }
+});
+reduced.on('data', console.log);
+// { a: 1, b: [ 2, 3, 4 ] }
+// { a: 2, b: [ 1 ] }
+// { a: 3, b: [ 2 ] }
 ```
 
 ---

@@ -3,7 +3,7 @@ _      = require 'underscore'
 debug  = require('debug') 'us:reduce'
 
 module.exports = class Reduce extends Transform
-  constructor: (@stream_opts, @options) ->
+  constructor: (@options, @stream_opts) ->
     super @stream_opts
     # TODO @options._async = _(@options).isFunction and @options.fn.length is 2
     if @options.key?
@@ -24,3 +24,7 @@ module.exports = class Reduce extends Transform
     else
       @_val = @options.fn @_val, chunk
     cb()
+
+module.exports =
+  reduce: (readable, options, stream_opts={objectMode:readable._readableState.objectMode}) ->
+    readable.pipe(new Reduce options, stream_opts)
