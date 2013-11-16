@@ -64,8 +64,7 @@ _s(input).chain().add10({objectMode:true}).each(console.log);
 
 ## Methods
 
-### <a name="fromArray">fromArray</a>
-`_s.fromArray(array)`
+### <a name="fromArray">fromArray</a> `_s.fromArray(array)`
 
 Turns an array into a readable stream of the objects within the array.
 
@@ -81,8 +80,7 @@ console.log(readable.read());
 // 6
 ```
 
-### <a name="fromString">fromString</a>
-`_s.fromString(string)`
+### <a name="fromString">fromString</a> `_s.fromString(string)`
 
 Turns a string into a readable stream of the characters within the string.
 
@@ -95,8 +93,7 @@ readable.on("data", console.log);
 // 6
 ```
 
-### <a name="toArray">toArray</a>
-`_s.toArray(readable, cb)`
+### <a name="toArray">toArray</a> `_s.toArray(readable, cb)`
 
 Reads a stream into an array of the data emitted by the stream.
 Calls `cb(err, arr)` when finished.
@@ -109,8 +106,7 @@ _s.toArray(readable, function(err, arr) {
 // [ 3, 4, 5, 6 ]
 ```
 
-### <a name="each">Each</a>
-`_s.each(readable, iterator)`
+### <a name="each">each</a> `_s.each(readable, iterator)`
 
 Calls the iterator function on each object in your stream, and passes the same object through when your interator function is done. If the iterator function has one argument (`(element)`), it is assumed to be synchronous. If it has two arguments, it is assumed to be asynchronous (`(element, cb)`).
 
@@ -123,8 +119,7 @@ readable.on("data", console.log);
 // 6
 ```
 
-### <a name="chain">chain</a>
-`_s.chain(obj)`
+### <a name="chain">chain</a> `_s.chain(obj)`
 
 Analagous to underscore's `chain`: returns a wrapped object with all the methods of understream.
 
@@ -136,8 +131,7 @@ _s.chain(_s.fromArray([3, 4, 5, 6])).each(console.log)
 // 6
 ```
 
-### <a name="value">value</a>
-`_s.chain(obj)`
+### <a name="value">value</a> `_s.chain(obj)`
 
 Analagous to underscore's `value`: exits a chain and returns the return value of the last method called.
 
