@@ -114,9 +114,9 @@ _s.toArray(readable, function(err, arr) {
 ```
 
 ---
-#### <a name="each">each</a> `_s.each(readable, iterator)`
+#### <a name="each">each</a> `_s.each(readable, iterator[,` [`stream_opts`](#stream_opts)`])`
 
-Calls the iterator function on each object in your stream, and emits the same object when your interator function is done.
+Calls the iterator function on each object in your stream, and emits the same object when your iterator function is done.
 If the iterator function has one argument (`(element)`), it is assumed to be synchronous.
 If it has two arguments, it is assumed to be asynchronous (`(element, cb)`).
 
@@ -132,7 +132,7 @@ _s.each(readable, console.log);
 *aliases*: `forEach`
 
 ---
-#### <a name="map">map</a> `_s.map(readable, iterator)`
+#### <a name="map">map</a> `_s.map(readable, iterator[,` [`stream_opts`](#stream_opts)`])`
 
 Makes a new stream that is the result of calling `iterator` on each piece of data in `readable`.
 If the iterator function has one argument (`(element)`), it is assumed to be synchronous.
@@ -151,7 +151,7 @@ mapped.on("data", console.log);
 *aliases*: `collect`
 
 ---
-#### <a name="reduce">reduce</a> `_s.reduce(readable, options)`
+#### <a name="reduce">reduce</a> `_s.reduce(readable, options[,` [`stream_opts`](#stream_opts)`])`
 
 Boils a stream down to a single value. `options` takes in:
 * `base`: value or function that represents/returns the initial state of the reduction.
@@ -199,7 +199,7 @@ reduced.on('data', console.log);
 *aliases*: `inject`, `foldl`
 
 ---
-#### <a name="filter">filter</a> `_s.filter(readable, iterator)`
+#### <a name="filter">filter</a> `_s.filter(readable, iterator[,` [`stream_opts`](#stream_opts)`])`
 
 Returns a readable stream that emits all data from `readable` that passes `iterator`.
 If it has only one argument, `iterator` is assumed to be synchronous.
@@ -219,7 +219,7 @@ filtered.on('data', console.log);
 *aliases*: `select`
 
 ---
-#### <a name="where">where</a> `_s.where(readable, attrs)`
+#### <a name="where">where</a> `_s.where(readable, attrs[,` [`stream_opts`](#stream_opts)`])`
 
 Filters `readable` to emit only objects that contain the attributes in the `attrs` object.
 
@@ -238,7 +238,7 @@ whered.on('data', console.log);
 ```
 
 ---
-#### <a name="invoke">invoke</a> `_s.invoke(readable, method)`
+#### <a name="invoke">invoke</a> `_s.invoke(readable, method[,` [`stream_opts`](#stream_opts)`])`
 
 Returns a stream that emits the results of invoking `method` on every object in `readable`.
 
@@ -254,7 +254,7 @@ invoked.on('data', console.log);
 ```
 
 ---
-#### <a name="groupBy">groupBy</a> `_s.groupBy(readable, options)`
+#### <a name="groupBy">groupBy</a> `_s.groupBy(readable, options[,` [`stream_opts`](#stream_opts)`])`
 
 When `options` is a function, creates a stream that will emit an object representing the groupings of the data in `readable` partitioned by the function.
 
@@ -278,7 +278,7 @@ grouped.on('data', console.log);
 ```
 
 ---
-#### <a name="first">first</a> `_s.first(readable[, n])`
+#### <a name="first">first</a> `_s.first(readable[, n,` [`stream_opts`](#stream_opts)`])`
 
 Returns a stream that only emits the first `n` objects in `readable`.
 `n` equals 1 by default.
@@ -295,7 +295,7 @@ first.on('data', console.log);
 *aliases*: `head`, `take`
 
 ---
-#### <a name="rest">rest</a> `_s.rest(readable[, n])`
+#### <a name="rest">rest</a> `_s.rest(readable[, n,` [`stream_opts`](#stream_opts)`])`
 
 Returns a stream that skips over the first `n` objects in `readable`.
 `n` equals 1 by default.
@@ -311,7 +311,7 @@ rest.on('data', console.log);
 *aliases*: `tail`, `drop`
 
 ---
-#### <a name="flatten">flatten</a> `_s.flatten(readable[, shallow])`
+#### <a name="flatten">flatten</a> `_s.flatten(readable[, shallow,` [`stream_opts`](#stream_opts)`])`
 
 Returns a stream that unpacks any arrays into their individual elements.
 By default `shallow` is false, and all nested arrays are also unpacked.
@@ -329,7 +329,7 @@ flatten.on('data', console.log);
 ```
 
 ---
-#### <a name="uniq">uniq</a> `_s.uniq(readable[, sorted, hash_fn])`
+#### <a name="uniq">uniq</a> `_s.uniq(readable[, sorted, hash_fn,` [`stream_opts`](#stream_opts)`])`
 
 Returns a stream that emits the unique elements of `readable`.
 Assumes the input is unsorted unless `sorted` is set to true.
@@ -362,7 +362,7 @@ _s.chain(_s.fromArray([3, 4, 5, 6])).each(console.log)
 ```
 
 ---
-#### <a name="value">value</a> `_s.chain(obj)`
+#### <a name="value">value</a> `_s.chain(obj)...value()`
 
 Analagous to underscore's `value`: exits a chain and returns the return value of the last method called.
 
@@ -374,7 +374,18 @@ var readable = _s.chain(_s.fromArray([3, 4, 5, 6])).value();
 // 6
 ```
 
+### <a name="stream_opts"</a> `stream_opts`
 
+By default, node streams take in some parameters that describe the data in the stream and the behavior of the stream's backpressure:
+
+* `objectMode`: Boolean specifying whether the stream will be processing javascript objects (vs. strings/buffer data).
+* `highWaterMark`: Number specifying the maximum size of a stream's internal buffer, i.e. the point at which it starts to exert backpressure on upstreams.
+If `objectMode` is true, this represents the maximum number of objects to buffer.
+If `objectMode` is false, this represents the number of bytes to buffer.
+
+In general it is a [bad idea](#TODO) to pipe two streams together that have mismatched `objectMode`s.
+Thus, all of understream's builtin mixins set `objectMode` equal to the `objectMode` of the readable stream passed in.
+This assures that backpressure works properly, and it is recommended you do the same in your own mixins.
 
 <!---
 
