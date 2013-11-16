@@ -20,6 +20,7 @@ It provides three classes of functionality:
   * [`groupBy`](#groupBy)
   * [`first`](#first)
   * [`rest`](#rest)
+  * [`flatten`](#flatten)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -297,6 +298,24 @@ rest.on('data', console.log);
 ```
 
 ---
+#### <a name="flatten">flatten</a> `_s.flatten(readable[, shallow])`
+
+Returns a stream that unpacks any arrays into their individual elements.
+By default `shallow` is false, and all nested arrays are also unpacked.
+
+```javascript
+var readable = _s.fromArray([1, 2, [3], [4], [5, [6]]]);
+var flatten = _s.flatten(readable);
+flatten.on('data', console.log);
+// 1
+// 2
+// 3
+// 4
+// 5
+// 6
+```
+
+---
 #### <a name="chain">chain</a> `_s.chain(obj)`
 
 Analagous to underscore's `chain`: returns a wrapped object with all the methods of understream.
@@ -325,11 +344,6 @@ var readable = _s.chain(_s.fromArray([3, 4, 5, 6])).value();
 
 
 <!---
-### Run
-### Duplex
-### Readable
-### Defaults
-### Pipe
 
 ### Batch (transform)
 `.batch(size)`
@@ -355,34 +369,6 @@ _.stream().file(path_to_file).split('\n').each(console.log).run()
 # ...
 ```
 
-### Filter
-`.each(iterator)`
-
-Calls the iterator for each object in your stream, passing through only the values that pass a truth test (iterator).
-
-```javascript
-_.stream([3, 4, 5, 6]).filter(function (n) { return n > 4 }).each(console.log).run()
-# 5
-# 6
-```
-
-### First
-`.first([n])`
-
-Passes through only the first `n` objects. If called with no arguments, assumes `n` is `1`.
-
-Passes through only the first object in the stream. Passing `n` will pass through the first `n` objects.
-
-```javascript
-_.stream([3, 4, 5, 6]).first(2).each(console.log).run()
-# 3
-# 4
-```
-
-### GroupBy
-
-### Invoke
-
 ### Join
 
 ### Process
@@ -391,13 +377,10 @@ _.stream([3, 4, 5, 6]).first(2).each(console.log).run()
 
 ### Queue
 
-### Reduce
-
 ### Spawn
 
 ### Split
 
 ### Uniq
 
-### Where
 --!>

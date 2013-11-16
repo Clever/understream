@@ -1,11 +1,11 @@
 assert = require 'assert'
 async = require 'async'
 _     = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+_s = require "#{__dirname}/../index"
 
 match_underscore = (fn, input, args, cb) ->
   [fn, input, args, cb] = [fn, input, [], args] if arguments.length is 3
-  _(input).stream()[fn](args...).run (err, result) ->
+  _s(_s.fromArray input).chain()[fn](args...).toArray (err, result) ->
     assert.ifError err
     assert.deepEqual result, _(input)[fn](args...)
     cb()
