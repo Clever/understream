@@ -16,6 +16,7 @@ It provides three classes of functionality:
   * [`reduce`](#reduce)
   * [`filter`](#filter)
   * [`where`](#where)
+  * [`invoke`](#invoke)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -221,6 +222,22 @@ whered.on('data', console.log);
 // { a: 1, b: 2 }
 // { a: 1, b: 3 }
 // { a: 1, b: 4 }
+```
+
+---
+#### <a name="invoke">invoke</a> `_s.invoke(readable, method)`
+
+Returns a stream that emits the results of invoking `method` on every object in `readable`.
+
+```javascript
+var readable = _s.fromArray([
+  {m: function() { return 1; }},
+  {m: function() { return 2; }}
+])
+var invoked = _s.invoke(readable, 'm');
+invoked.on('data', console.log);
+// 1
+// 2
 ```
 
 ---

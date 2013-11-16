@@ -1,12 +1,12 @@
 assert = require 'assert'
 async = require 'async'
 _     = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+_s = require "#{__dirname}/../index"
 
 describe '_.invoke', ->
   it 'works', (done) ->
     input = [{m: () -> '1'}, {m: () -> '2'}]
-    _(input).stream().invoke('m').run (err, result) ->
+    _s(_s.fromArray input).chain().invoke('m').toArray (err, result) ->
       assert.ifError err
       assert.deepEqual result, _(input).invoke('m')
       done()
