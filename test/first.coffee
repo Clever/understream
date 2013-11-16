@@ -2,9 +2,12 @@ _     = require 'underscore'
 assert = require 'assert'
 async = require 'async'
 _s = require "#{__dirname}/../index"
+test_helpers = require "#{__dirname}/helpers"
 
 describe '_.first', ->
   # fails for node < v0.10.20 due to https://github.com/joyent/node/issues/6183
+  return if test_helpers.node_major() is 10 and test_helpers.node_minor() < 20
+
   it 'sends through all objects if limit > size of stream', (done) ->
     input = [0..10]
     _s(_s.fromArray input).chain().first(100).toArray (err, result) ->
