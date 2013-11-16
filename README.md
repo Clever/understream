@@ -18,6 +18,7 @@ It provides three classes of functionality:
   * [`where`](#where)
   * [`invoke`](#invoke)
   * [`groupBy`](#groupBy)
+  * [`first`](#first)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -263,6 +264,21 @@ var grouped = _s.groupBy(readable, {fn: Math.floor, unpack: true});
 grouped.on('data', console.log);
 // { '1': [ 1.3 ] }
 // { '2': [ 2.1, 2.4 ] }
+```
+
+---
+#### <a name="first">first</a> `_s.first(readable[, n])`
+
+Returns a stream that only emits the first `n` objects in `readable`.
+`n` equals 1 by default.
+
+```javascript
+var readable = _s.fromArray([1, 2, 3, 4, 5]);
+var first = _s.first(readable, 3);
+first.on('data', console.log);
+// 1
+// 2
+// 3
 ```
 
 ---

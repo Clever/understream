@@ -1,13 +1,13 @@
 _     = require 'underscore'
 assert = require 'assert'
 async = require 'async'
-_.mixin require("#{__dirname}/../index").exports()
+_s = require "#{__dirname}/../index"
 
 describe '_.first', ->
   # fails for node < v0.10.20 due to https://github.com/joyent/node/issues/6183
   it 'sends through all objects if limit > size of stream', (done) ->
     input = [0..10]
-    _(input).stream().first(100).run (err, result) ->
+    _s(_s.fromArray input).chain().first(100).toArray (err, result) ->
       assert.ifError err
       assert.deepEqual result, input
       done()
@@ -15,7 +15,7 @@ describe '_.first', ->
   it 'sends through limit objects if limit < size of stream', (done) ->
     LIMIT = 5
     input = [0..10]
-    _(input).stream().first(LIMIT).run (err, result) ->
+    _s(_s.fromArray input).chain().first(LIMIT).toArray (err, result) ->
       assert.ifError err
       assert.deepEqual result, _(input).first(LIMIT)
       done()
@@ -25,7 +25,10 @@ describe '_.first', ->
     HIGHWATERMARK = 1
     input = [0..100]
     seen = 0
-    _(input).stream().defaults(objectMode: true, highWaterMark: HIGHWATERMARK).each(-> seen++).first(LIMIT).run (err, result) ->
+    _s(_s.fromArray input).chain()
+    .each((-> seen++), {objectMode: true, highWaterMark: HIGHWATERMARK})
+    .first(LIMIT, {objectMode: true, highWaterMark: HIGHWATERMARK})
+    .toArray (err, result) ->
       assert.ifError err
       assert.equal seen, LIMIT+HIGHWATERMARK*2 # 1 highWaterMark for buffering in first, 1 highWaterMark for buffering in each
       done()
