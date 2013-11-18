@@ -369,8 +369,6 @@ _s.size(readable).on('data', console.log);
 // 5
 ```
 
-*aliases*: `unique`
-
 ---
 #### <a name="chain">chain</a> `_s.chain(obj)`
 
