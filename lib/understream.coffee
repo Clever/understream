@@ -57,6 +57,7 @@ module.exports = ->
     "rest"
     "flatten"
     "uniq"
+    "size"
   ]).each (fn) -> _s.mixin require("#{__dirname}/mixins/#{fn}")
 
   _s
