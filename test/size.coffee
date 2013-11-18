@@ -17,7 +17,7 @@ describe '_s.size', ->
       done()
 
   it 'emits the number of objects in an object stream', (done) ->
-    _s(_s.fromArray [0, 1, 2, 3, 4]).chain().size().toArray (err, arr) ->
+    _s([0, 1, 2, 3, 4]).chain().fromArray().size().toArray (err, arr) ->
       assert.ifError err
       assert.deepEqual arr, [5]
       done()
