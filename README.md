@@ -23,6 +23,7 @@ It provides three classes of functionality:
   * [`rest`](#rest)
   * [`flatten`](#flatten)
   * [`uniq`](#uniq)
+  * [`size`](#size)
 
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
@@ -363,6 +364,26 @@ uniq.on('data', console.log);
 ```
 
 *aliases*: `unique`
+
+---
+#### <a name="size">size</a> `_s.size(readable[, [`stream_opts`](#stream_opts)`])`
+
+Returns a stream that emits the length of `readable` in bytes, or the number of objects in `readable` if it is in objectMode.
+
+```javascript
+var readable = new Readable();
+readable._read = function() {} // noop
+readable.push(crypto.randomBytes(100));
+readable.push(null);
+_s.size(readable).on('data', console.log);
+// 100
+```
+
+```javascript
+var readable = _s.fromArray([0, 1, 2, 3, 4])
+_s.size(readable).on('data', console.log);
+// 5
+```
 
 ---
 #### <a name="chain">chain</a> `_s.chain(obj)`
