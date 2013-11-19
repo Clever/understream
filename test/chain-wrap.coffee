@@ -3,11 +3,7 @@ async = require 'async'
 _sMaker = require "../lib/understream"
 sinon = require 'sinon'
 _ = require 'underscore'
-
-# Takes an array and returns an array of adjacent pairs of elements in the
-# array, wrapping around at the end.
-adjacent = (arr) ->
-  _.zip arr, _.rest(arr).concat [_.first arr]
+test_helpers = require './helpers'
 
 methods = (obj) ->
   _.chain().functions(obj).without('value', 'mixin').value()
@@ -54,5 +50,5 @@ _.each
     # Since equivalence is transitive, to assert that a group of expressions
     # are equivalent, we can assert that each one is equivalent to one other
     # one.
-    _.each adjacent(_.pairs(exps)), ([[name1, exp1], [name2, exp2]]) ->
+    _.each test_helpers.adjacent(_.pairs(exps)), ([[name1, exp1], [name2, exp2]]) ->
       describe "#{name1}/#{name2}", -> testEquivalent exp1, exp2

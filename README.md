@@ -9,6 +9,7 @@ It provides three classes of functionality:
   * [`fromArray`](#fromArray)
   * [`fromString`](#fromArray)
   * [`toArray`](#toArray)
+  * [`range`](#range)
 
 2. Functions that take a Readable stream and transform its data, returning a new readable stream:
   * [`each`](#each)
@@ -112,6 +113,21 @@ _s.toArray(readable, function(err, arr) {
   console.log(arr);
 });
 // [ 3, 4, 5, 6 ]
+```
+
+---
+#### <a name="range">range</a> `_s.range(size, stream_opts)` `_s.range(start, stop[, step, stream_opts])`
+
+Generates the integers from 0 to `size-1`, inclusive.
+Alternatively generates integers from `start` to `stop` in increments of `step`, with a default `step` of 1.
+
+```javascript
+_s.range(5).on('data', console.log);
+// 0
+// 1
+// 2
+// 3
+// 4
 ```
 
 ---
