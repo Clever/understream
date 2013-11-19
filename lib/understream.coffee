@@ -18,7 +18,7 @@ module.exports = ->
     # Add your own custom functions to the Understream object.
     @mixin: (obj) ->
       _(obj).chain().functions().each (name) ->
-        func = _s[name] = obj[name]
+        func = _s[name] = obj[name].bind(_s)
         _s.prototype[name] = ->
           args = [@_wrapped]
           args.push arguments...
