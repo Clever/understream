@@ -9,6 +9,7 @@ readable_equals_array = (readable, array, cb) ->
     cb()
 
 tests =
+  'no args': []
   'size': [5]
   'size 0': [0]
   'start, stop': [0, 10]
@@ -24,3 +25,5 @@ describe '_s.range', ->
   _(tests).each (args, test) ->
     it test, (done) ->
       readable_equals_array _s.range.apply(_s, args), _.range.apply(_, args), done
+    it "#{test} with stream_opts", (done) ->
+      readable_equals_array _s.range.apply(_s, args.concat({highWaterMark:10})), _.range.apply(_, args), done

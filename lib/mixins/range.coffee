@@ -15,9 +15,12 @@ class Range extends Readable
 
 module.exports =
   range: (start, stop, step, stream_opts) ->
-    if arguments.length <= 1
+    args = _(arguments).toArray()
+    if _(args).chain().last().isObject().value()
+      stream_opts = args.pop()
+    if args.length <= 1
       # did not specify stop and step, maybe not even start
       stop = start or 0
       start = 0
-    step = arguments[2] or 1
+    step = args[2] or 1
     new Range start, stop, step, stream_opts
