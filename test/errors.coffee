@@ -58,3 +58,18 @@ describe '_.stream error handling', ->
       assert.equal was_thrown(err), true, "Expected error caught by domain to be thrown"
       assert.equal err.message, 'one and done'
       done()
+
+  expected_err = -> new Error('from another stream')
+  _.each
+    emitted: (i, cb) -> cb expected_err()
+    thrown: (i, cb) -> throw expected_err()
+    async_emitted: (i, cb) -> setImmediate -> cb expected_err()
+    async_thrown: (i, cb) -> setImmediate -> throw expected_err()
+  , (bad_fn, action) ->
+    it "catches #{action} errors from any stream in the entire pipeline", (done) ->
+      console.log action
+      other_pipeline = _.stream([1]).each(bad_fn).each(->).readable()
+      _(other_pipeline).stream().each(->).run (err) ->
+        assert err?, 'Expected error'
+        assert.deepEqual err.message, expected_err().message
+        done()
