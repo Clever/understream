@@ -97,7 +97,6 @@ module.exports = class Understream
     # If the final stream is Readable, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if is_readable _(@_streams).last()
-    add_reporter @_streams
     handler = (err) =>
       if cb.length is 1
         cb err
@@ -105,19 +104,18 @@ module.exports = class Understream
         cb err, result
     _(@_streams).last().on 'finish', handler
     # Catch any errors thrown emitted by a stream with a handler
-    _(@_streams).each (stream) ->
-      _.each (stream._pipeline?() or [stream]), (stream) ->
-        domainify stream
-        stream.on 'error', handler
+    pipeline = _.flatten _(@_streams).map (stream) -> stream._pipeline?() or [stream]
+    add_reporter pipeline
+    _.each pipeline, (stream) ->
+      domainify stream
+      stream.on 'error', handler
     debug 'running'
     pipe_streams_together @_streams...
     @
   readable: => # If you want to get out of understream and access the raw stream
-    add_reporter @_streams
     pipe_streams_together @_streams...
     _.extend _.last(@_streams), _pipeline: => @_streams
   duplex: =>
-    add_reporter @_streams
     _.extend new StreamCombiner(@_streams...), _pipeline: => @_streams
   stream: => @readable() # Just an alias for compatibility purposes
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
