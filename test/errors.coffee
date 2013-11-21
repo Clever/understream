@@ -73,3 +73,13 @@ describe '_.stream error handling', ->
           assert err?, 'Expected error'
           assert.deepEqual err.message, expected_err().message
           done()
+
+    it "catches #{action} errors from the join 'from' stream", (done) ->
+      _.stream(['to']).join
+        from: _.stream(['from']).each(bad_fn).readable()
+        on: 'doesnt matter'
+        type: 'inner'
+      .run (err) ->
+        assert err?, 'Expected error'
+        assert.deepEqual err.message, expected_err().message
+        done()
