@@ -118,8 +118,7 @@ module.exports = class Understream
     _.extend _.last(@_streams), _pipeline: => @_streams
   duplex: =>
     add_reporter @_streams
-    new StreamCombiner @_streams...
-    # TODO add _pipeline
+    _.extend new StreamCombiner(@_streams...), _pipeline: => @_streams
   stream: => @readable() # Just an alias for compatibility purposes
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance
