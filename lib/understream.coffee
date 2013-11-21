@@ -11,7 +11,7 @@ _.mixin isPlainObject: (obj) -> obj.constructor is {}.constructor
 # and re-emitting them from the stream.
 domainify = (stream) ->
   if stream instanceof Transform
-    orig_transform = stream._transform
+    orig_transform = stream._transform.bind stream
     stream._transform = (chunk, enc, cb) ->
       dmn = domain.create()
       dmn.on 'error', (err) ->
