@@ -172,4 +172,5 @@ module.exports = class Join
         new HashJoin @stream_opts, @options
 
     # Add _pipeline method so .run() can access both streams for error handling.
-    return _.extend join_instance, _pipeline: => [join_instance, @options.from]
+    return _.extend join_instance, _pipeline: =>
+      [join_instance].concat @options.from._pipeline?() or [@options.from]

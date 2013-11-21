@@ -76,7 +76,7 @@ describe '_.stream error handling', ->
 
     it "catches #{action} errors from the join 'from' stream", (done) ->
       _.stream(['to']).join
-        from: _.stream(['from']).each(bad_fn).readable()
+        from: _.stream(['from']).each(bad_fn).each(->).readable()
         on: 'doesnt matter'
         type: 'inner'
       .run (err) ->
