@@ -11,15 +11,11 @@ _.mixin isPlainObject: (obj) -> obj.constructor is {}.constructor
 # and re-emitting them from the stream.
 domainify = (stream) ->
   if stream instanceof Transform
-    orig_transform = stream._transform.bind stream
-    stream._transform = (chunk, enc, cb) ->
-      dmn = domain.create()
-      dmn.on 'error', (err) ->
-        dmn.dispose()
-        stream.emit 'error', err
-      dmn.run -> orig_transform chunk, enc, (args...) ->
-        dmn.dispose()
-        cb args...
+    dmn = domain.create()
+    stream._transform = dmn.bind stream._transform.bind stream
+    dmn.on 'error', (err) ->
+      dmn.dispose()
+      stream.emit 'error', err
 
 is_readable = (instance) ->
   instance? and
