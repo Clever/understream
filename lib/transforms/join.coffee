@@ -161,11 +161,16 @@ module.exports = class Join
     throw new Error "'from' must be pipeable" unless _(@options.from.pipe).isFunction()
 
 
-    # Sorted merge only currently supported for outer joins
-    if @options.sorted and @options.type is 'outer'
-      return new SortedMergeJoin @stream_opts,
-        right: @options.from
-        key: @options.on
-        type: 'outer' # only type supported so far
-    else
-      return new HashJoin @stream_opts, @options
+    join_instance =
+      # Sorted merge only currently supported for outer joins
+      if @options.sorted and @options.type is 'outer'
+        new SortedMergeJoin @stream_opts,
+          right: @options.from
+          key: @options.on
+          type: 'outer' # only type supported so far
+      else
+        new HashJoin @stream_opts, @options
+
+    # Add _pipeline method so .run() can access both streams for error handling.
+    return _.extend join_instance, _pipeline: =>
+      [join_instance].concat @options.from._pipeline?() or [@options.from]
