@@ -65,6 +65,7 @@ describe '_.stream error handling', ->
     thrown: (i, cb) -> throw expected_err()
     async_emitted: (i, cb) -> setImmediate -> cb expected_err()
     async_thrown: (i, cb) -> setImmediate -> throw expected_err()
+    async_nested_thrown: (i, cb) -> setImmediate -> setImmediate -> setImmediate -> throw expected_err()
   , (bad_fn, action) ->
     _.each ['readable', 'duplex'], (getter) ->
       it "catches #{action} errors from any stream in the entire pipeline using #{getter}", (done) ->
