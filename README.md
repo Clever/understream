@@ -27,6 +27,7 @@ It provides three classes of functionality:
 3. Functions that allow you to create chains of transformations:
   * [`chain`](#chain)
   * [`value`](#value)
+  * [`values`](#values)
 
 The library has underscore-like usage:
 
@@ -389,6 +390,12 @@ var readable = _s.chain(_s.fromArray([3, 4, 5, 6])).value();
 // 5
 // 6
 ```
+
+---
+#### <a name="values">values</a> `_s.chain(obj)...values()`
+
+Returns an array of all intermediate results from the chain.
+Useful for attaching error listeners to any streams you create.
 
 ### <a name="stream_opts"</a> `stream_opts`
 

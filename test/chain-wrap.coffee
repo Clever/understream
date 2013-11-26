@@ -45,6 +45,22 @@ _.each
     'unwrapped chained' : (_s) -> _s.chain('a').fn('b').fn('c').value()
     'wrapped chained'   : (_s) -> _s('a').chain().fn('b').fn('c').value()
 
+  'no-op values':
+    'unwrapped chained' : (_s) -> _s.chain('a').values()
+    'wrapped chained'   : (_s) -> _s('a').chain().values()
+  'no-arg values':
+    'unwrapped chained' : (_s) -> _s.chain().fn().values()
+    'wrapped chained'   : (_s) -> _s().chain().fn().values()
+  'one-arg values':
+    'unwrapped chained' : (_s) -> _s.chain('a').fn().values()
+    'wrapped chained'   : (_s) -> _s('a').chain().fn().values()
+  'multi-arg values':
+    'unwrapped chained' : (_s) -> _s.chain('a').fn({b:1}, 2).values()
+    'wrapped chained'   : (_s) -> _s('a').chain().fn({b:1}, 2).values()
+  'multiple functions values':
+    'unwrapped chained' : (_s) -> _s.chain('a').fn('b').fn('c').values()
+    'wrapped chained'   : (_s) -> _s('a').chain().fn('b').fn('c').values()
+
 , (exps, desc) ->
   describe desc, ->
     # Since equivalence is transitive, to assert that a group of expressions

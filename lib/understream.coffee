@@ -10,8 +10,8 @@ module.exports = ->
   # Thus, in the constructor we detect if called as a function and return a properly new'd
   # instance of _s containing all the prototype methods.
   class _s
-    constructor: (obj) ->
-      return new _s(obj) if not (@ instanceof _s)
+    constructor: (obj, @prev_objs=[]) ->
+      return new _s(obj, @prev_objs) if not (@ instanceof _s)
       @_wrapped = obj
 
     # Adapted from underscore's mixin
@@ -37,10 +37,11 @@ module.exports = ->
 
     # Extracts the result from a wrapped and chained object.
     value: -> @_wrapped
+    values: -> [@_wrapped].concat @prev_objs
 
   # Private helper function to continue chaining intermediate results
   result = (obj) ->
-    if @_chain then _s(obj).chain() else obj
+    if @_chain then _s(obj, @prev_objs.concat(@_wrapped)).chain() else obj
 
   _([
     "fromArray"
