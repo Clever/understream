@@ -16,22 +16,26 @@ bad_lib_factory = (type) ->
     when 'sync-cb'
       cnt = 0
       return (input, cb) ->
-        if ++cnt is 0 then cb(null, input) else cb error
+        cnt += 1
+        if cnt is 1 then cb(null, input) else cb error
     when 'async-cb'
       cnt = 0
       return (input, cb) ->
-        if ++cnt is 0
+        cnt += 1
+        if cnt is 1
           setImmediate () -> cb(null, input) # don't release the zalgo
         else
           cb error
     when 'sync-cb-throw'
       cnt = 0
       return (input, cb) ->
-        if ++cnt is 0 then cb(null, input) else throw error
+        cnt += 1
+        if cnt is 1 then cb(null, input) else throw error
     when 'async-cb-throw'
       cnt = 0
       return (input, cb) ->
-        if ++cnt is 0
+        cnt += 1
+        if cnt is 1
           setImmediate () -> cb null, input
         else
           setTimeout (() -> throw error), 500
@@ -73,7 +77,9 @@ describe 'streams', ->
   _(['sync-cb', 'async-cb', 'sync-cb-throw', 'async-cb-throw']).each (lib_type) ->
     it "can use #{lib_type} libraries", (done) ->
       stream = best_practice_stream_factory lib_type
-      stream.on 'error', (err) ->
+      # stream could emit multiple errors, but here only care about the first
+      # don't use .once otherwise node will remove the error listener, triggering an exception
+      stream.on 'error', _.once (err) ->
         assert err.from_bad_lib, "expected to catch library error, caught something else: #{err}"
         done()
       input = _s.range 5
