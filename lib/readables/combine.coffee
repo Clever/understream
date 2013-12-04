@@ -2,9 +2,9 @@
 _ = require 'underscore'
 {is_readable} = require '../helpers'
 
-# Combines the output of two Readable streams into one Readable stream. The
+# Combines the output of several Readable streams into one Readable stream. The
 # items from each input stream will stay in order, but they may be in any order
-# relative to items from the other input stream.
+# relative to items from the other input streams.
 module.exports = class Combine
   constructor: (streams) ->
     throw new Error 'Expected Readable streams' unless _(streams).all is_readable
