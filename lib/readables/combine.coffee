@@ -6,13 +6,11 @@ _ = require 'underscore'
 # items from each input stream will stay in order, but they may be in any order
 # relative to items from the other input stream.
 module.exports = class Combine
-  constructor: (left, right) ->
-    throw new Error 'Expected Readable streams' unless is_readable(left) and is_readable(right)
-    output = new PassThrough objectMode:
-      (left._readableState.objectMode or right._readableState.objectMode)
-    cb = _.after 2, -> output.end()
-    left.on 'end', cb
-    left.pipe output, end: false
-    right.on 'end', cb
-    right.pipe output, end: false
+  constructor: (streams) ->
+    throw new Error 'Expected Readable streams' unless _(streams).all is_readable
+    output = new PassThrough objectMode: _(streams).any (stream) -> stream._readableState.objectMode
+    cb = _.after streams.length, -> output.end()
+    _(streams).each (stream) ->
+      stream.on 'end', cb
+      stream.pipe output, end: false
     return output

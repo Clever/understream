@@ -25,11 +25,14 @@ describe 'combine', ->
 
   expected_err = /Expected Readable streams/
   it 'only accepts Readable streams on the right', ->
-    assert.throws (-> _.stream().combine(stream_from_array([]), new Writable())), expected_err
+    streams = [stream_from_array([]), new Writable()]
+    assert.throws (-> _.stream().combine(streams)), expected_err
   it 'only accepts Readable streams on the left', ->
-    assert.throws (-> _.stream().combine(new Writable(), stream_from_array([]))), expected_err
+    streams = [new Writable(), stream_from_array([])]
+    assert.throws (-> _.stream().combine(streams)), expected_err
   it 'accepts any Readable streams', ->
-    assert.doesNotThrow (-> _.stream().combine(new PassThrough(), stream_from_array([])))
+    streams = [new PassThrough(), stream_from_array([])]
+    assert.doesNotThrow (-> _.stream().combine(streams))
 
   _.each [
     [[]                 , []]
@@ -37,29 +40,33 @@ describe 'combine', ->
     [[]                 , ['a', 'bc', 'def']]
     [[1, 2]             , [3, 4]]
     [[0, 'zero']        , [{ a: 'a' }, [], 'so heterogenous']]
-  ], ([left, right]) ->
+  ], (stream_data) ->
     _.each [
-      stream_from_array
-      lazy_stream_from_array
-    ], (make_stream) ->
-      it "combines #{inspect left} with #{inspect right}", (done) ->
-        _.stream().combine(make_stream(left), make_stream(right)).run (err, output) ->
+      {constructor: stream_from_array}
+      {constructor: lazy_stream_from_array, name: 'lazy'}
+    ], ({constructor, name}) ->
+      it "#{if name then name + ' ' else ''}combines #{inspect stream_data}", (done) ->
+        streams = _(stream_data).map (data) -> constructor data
+        _.stream().combine(streams).run (err, output) ->
           assert.ifError err
           # Order doesn't matter
-          assert.deepEqual output.sort(), left.concat(right).sort()
+          assert.deepEqual output.sort(), _(stream_data).flatten(true).sort()
           done()
 
   it 'works with objectMode: false', (done) ->
-    [left, right] = [['abc', 'def', 'gh'], ['123', '456', '78']]
-    _.stream().combine(stream_from_array(left, false), stream_from_array(right, false)).run (err, output) ->
+    stream_data = [['abc', 'def', 'gh'], ['123', '456', '78']]
+    streams = _(stream_data).map (stream) -> stream_from_array stream, false
+    _.stream().combine(streams).run (err, output) ->
       assert.ifError err
       assert.equal _(output).invoke('toString').sort().join(''),
-        left.concat(right).sort().join('')
+        _(stream_data).flatten(true).sort().join('')
       done()
 
   it 'uses objectMode if the left stream is in objectMode', ->
-    combined = _.stream().combine(stream_from_array([], false), stream_from_array([])).stream()
+    streams = [stream_from_array([], false), stream_from_array([])]
+    combined = _.stream().combine(streams).stream()
     assert combined._readableState.objectMode
   it 'uses objectMode if the right stream is in objectMode', ->
-    combined = _.stream().combine(stream_from_array([]), stream_from_array([], false)).stream()
+    streams = [stream_from_array([]), stream_from_array([], false)]
+    combined = _.stream().combine(streams).stream()
     assert combined._readableState.objectMode
