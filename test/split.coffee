@@ -4,19 +4,15 @@ _.mixin require("#{__dirname}/../index").exports()
 async = require 'async'
 {Readable} = require 'stream'
 
-# domain_emitter (0.8) vs domainEmitter (0.10)
-domain_emitter = (domain_err) ->
-  domain_err.domain_emitter or domain_err.domainEmitter
-
 describe '_.split', ->
   it 'requires a sep argument', ->
-    assert.throws () ->
+    assert.throws ->
       _().stream().split()
     , /requires separator/
-    assert.throws () ->
+    assert.throws ->
       _().stream({}).split()
     , /requires separator/
-    assert.throws () ->
+    assert.throws ->
       _().stream({asdf:'asdf'}).split()
     , /requires separator/
 
@@ -27,7 +23,6 @@ describe '_.split', ->
     ]
     async.forEachSeries test_inputs, (test_input, cb_fe) ->
       _(test_input).stream().split("test").run (err) ->
-        assert domain_emitter(err)?.options.sep is 'test'
         assert err.message.match /non-string\/buffer chunk/
         cb_fe()
     , done
@@ -39,9 +34,9 @@ describe '_.split', ->
   ].forEach (arg_spec) ->
     it "splits with a #{arg_spec.type} argument", (done) ->
       r = new Readable()
-      r.push "1\n2\n3\n"
+      r.push "1\n2\n3"
       r.push null
-      r._read = () ->
+      r._read = ->
       _(r).stream().split(arg_spec.arg).run (err, val) ->
         assert.ifError err
         assert.deepEqual _(val).map(String), ['1','2','3']

@@ -6,6 +6,7 @@ module.exports = class Split extends Transform
   constructor: (@stream_opts, @options) ->
     delete @stream_opts.objectMode # must take in strings or buffers
     super @stream_opts
+    @_readableState.objectMode = true
     if not @options? or
     not (_(@options).isString() or @options instanceof RegExp or _(@options).isObject())
       throw new Error("Split requires separator")
