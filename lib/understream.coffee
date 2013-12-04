@@ -61,11 +61,12 @@ class ArrayStream extends Readable
     super _(@options).extend objectMode: true
   _read: (size) =>
     debug "_read #{size} #{JSON.stringify @arr[@index]}"
-    @push @arr[@index++] # Note: push(undefined) signals the end of the stream, so this just works^tm
+    @push @arr[@index] # Note: push(undefined) signals the end of the stream, so this just works^tm
+    @index += 1
 
 class DevNull extends Writable
   constructor: -> super objectMode: true
-  _write: (chunk, encoding, cb) => cb()
+  _write: (chunk, encoding, cb) -> cb()
 
 module.exports = class Understream
   constructor: (head) ->
@@ -91,7 +92,7 @@ module.exports = class Understream
     # If the final stream is Readable, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if is_readable _(@_streams).last()
-    handler = (err) =>
+    handler = (err) ->
       if cb.length is 1
         cb err
       else

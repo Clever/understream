@@ -24,7 +24,7 @@ async = require 'async'
 #   hash objects in "from" stream on 'a', 'd', objects in source stream on 'a', 'c'
 hash_fn = (source, onn) ->
   (obj) ->
-    _(onn).map((on_spec) =>
+    _(onn).map((on_spec) ->
       key = on_spec
       if _(on_spec).isObject()
         key = _(on_spec).chain().pairs().flatten()[if source then 'first' else 'last']().value()
@@ -38,15 +38,15 @@ class HashAccumulator extends Writable
   constructor: (@stream_opts, @options) ->
     super @stream_opts
     @cache = {}
-    int = setInterval () =>
+    int = setInterval =>
       debug 'hash:cache size', _(@cache).size()
     , 1000
-    @on 'finish', () =>
+    @on 'finish', =>
       debug "hash:finish size=#{_(@cache).size()}"
       clearInterval int
     @options.from.pipe @
 
-  finished: () => @_writableState.finished
+  finished: => @_writableState.finished
 
   _write: (obj, encoding, cb) =>
     @_hash ?= hash_fn false, @options.on
@@ -60,7 +60,7 @@ class HashAccumulator extends Writable
     if not @options.select?
       data = obj
     else
-      _(@options.select).each (sel) =>
+      _(@options.select).each (sel) ->
         if _(sel).isString()
           data[sel] = obj[sel]
         else
@@ -75,7 +75,7 @@ class HashJoin extends Transform
 
     # buffer data until the stream we're joining on finishes
     @_buffer = []
-    @hash.on 'finish', () =>
+    @hash.on 'finish', =>
       debug "performing join for #{@_buffer.length} buffered docs"
       _(@_buffer).each (spec, i) => @_do_join spec[0], spec[1]
 
