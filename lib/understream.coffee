@@ -116,7 +116,6 @@ module.exports = class Understream
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance
     @
-  @combine: require './combine'
   @mixin: (FunctionOrStreamKlass, name=(FunctionOrStreamKlass.name or Readable.name), fn=false) ->
     if _(FunctionOrStreamKlass).isPlainObject() # underscore-style mixins
       @_mixin_by_name klass, name for name, klass of FunctionOrStreamKlass
