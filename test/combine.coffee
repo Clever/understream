@@ -1,6 +1,6 @@
 assert = require 'assert'
 _ = require 'underscore'
-{Readable, Writable, PassThrough} = require 'stream'
+{PassThrough, Readable, Writable} = require 'stream'
 {inspect} = require 'util'
 
 understream = require '../index'
@@ -24,22 +24,30 @@ lazy_stream_from_array = (arr) ->
 describe 'combine', ->
 
   expected_err = /Expected Readable streams/
-  it 'only accepts Readable streams on the right', ->
-    streams = [stream_from_array([]), new Writable()]
-    assert.throws (-> _.stream().combine(streams)), expected_err
-  it 'only accepts Readable streams on the left', ->
-    streams = [new Writable(), stream_from_array([])]
-    assert.throws (-> _.stream().combine(streams)), expected_err
+  it 'throws an error unless all streams are readable', ->
+    _.each [
+      [stream_from_array([]), new Writable()]
+      [new Writable(), stream_from_array([])]
+      [new Writable(), stream_from_array([]), new Writable()]
+      [stream_from_array([]), stream_from_array([]), new Writable()]
+    ], (streams) ->
+      assert.throws (-> _.stream().combine(streams)), expected_err
   it 'accepts any Readable streams', ->
-    streams = [new PassThrough(), stream_from_array([])]
-    assert.doesNotThrow (-> _.stream().combine(streams))
+    _.each [
+      [new PassThrough(), stream_from_array([])]
+      [new PassThrough(), stream_from_array([]), new PassThrough()]
+      [new PassThrough(), stream_from_array([]), stream_from_array([])]
+    ], (streams) ->
+      assert.doesNotThrow (-> _.stream().combine(streams))
 
   _.each [
-    [[]                 , []]
     [['a', 'bc', 'def'] , []]
     [[]                 , ['a', 'bc', 'def']]
-    [[1, 2]             , [3, 4]]
-    [[0, 'zero']        , [{ a: 'a' }, [], 'so heterogenous']]
+    [[]                 , []                                  , []]
+    [['a', 'bc', 'def'] , []                                  , [1, 2 ,3]]
+    [[]                 , ['a', 'bc', 'def']                  , [1, 2, 3]]
+    [[1, 2]             , [3, 4]                              , [5, 6]]
+    [[0, 'zero']        , [{ a: 'a' }, [], 'so heterogenous'] , [new Date(), 5]]
   ], (stream_data) ->
     _.each [
       {constructor: stream_from_array}
@@ -54,7 +62,7 @@ describe 'combine', ->
           done()
 
   it 'works with objectMode: false', (done) ->
-    stream_data = [['abc', 'def', 'gh'], ['123', '456', '78']]
+    stream_data = [['abc', 'def', 'gh'], ['123', '456', '78'], [new Date().toString()]]
     streams = _(stream_data).map (stream) -> stream_from_array stream, false
     _.stream().combine(streams).run (err, output) ->
       assert.ifError err
@@ -62,11 +70,12 @@ describe 'combine', ->
         _(stream_data).flatten(true).sort().join('')
       done()
 
-  it 'uses objectMode if the left stream is in objectMode', ->
-    streams = [stream_from_array([], false), stream_from_array([])]
-    combined = _.stream().combine(streams).stream()
-    assert combined._readableState.objectMode
-  it 'uses objectMode if the right stream is in objectMode', ->
-    streams = [stream_from_array([]), stream_from_array([], false)]
-    combined = _.stream().combine(streams).stream()
-    assert combined._readableState.objectMode
+  it 'uses objectMode if any stream is in objectMode', ->
+    _.each [
+      [stream_from_array([], false), stream_from_array([])]
+      [stream_from_array([]), stream_from_array([], false)]
+      [stream_from_array([]), stream_from_array([]), stream_from_array([], false)]
+      [stream_from_array([]), stream_from_array([], false), stream_from_array([], false)]
+    ], (streams) ->
+      combined = _.stream().combine(streams).stream()
+      assert combined._readableState.objectMode
