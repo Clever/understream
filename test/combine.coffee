@@ -23,7 +23,6 @@ lazy_stream_from_array = (arr) ->
 
 describe 'combine', ->
 
-  expected_err = /Expected Readable streams/
   it 'throws an error unless all streams are readable', ->
     _.each [
       [stream_from_array([]), new Writable()]
@@ -31,7 +30,7 @@ describe 'combine', ->
       [new Writable(), stream_from_array([]), new Writable()]
       [stream_from_array([]), stream_from_array([]), new Writable()]
     ], (streams) ->
-      assert.throws (-> _.stream().combine(streams)), expected_err
+      assert.throws (-> _.stream().combine(streams)), /Expected Readable streams/
   it 'accepts any Readable streams', ->
     _.each [
       [new PassThrough(), stream_from_array([])]
