@@ -40,6 +40,7 @@ describe 'combine', ->
       assert.doesNotThrow (-> _.stream().combine(streams))
 
   _.each [
+    []
     [['a', 'bc', 'def'] , []]
     [[]                 , ['a', 'bc', 'def']]
     [[]                 , []                                  , []]
