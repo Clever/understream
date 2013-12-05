@@ -4,6 +4,7 @@ _      = require 'underscore'
 debug  = require('debug') 'us'
 domain = require 'domain'
 {EventEmitter} = require 'events'
+{is_readable} = require './helpers'
 
 _.mixin isPlainObject: (obj) -> obj.constructor is {}.constructor
 
@@ -20,13 +21,6 @@ domainify = (stream) ->
     # Use .exit() instead of .dispose() because .dispose() was breaking the
     # tests. Something to look into at some point maybe... (-Jonah)
     stream.on 'end', -> dmn.exit()
-
-is_readable = (instance) ->
-  instance? and
-  _.isObject(instance) and
-  instance instanceof EventEmitter and
-  instance.pipe? and
-  (instance._read? or instance.read? or instance.readable)
 
 state_to_string = (state) ->
   if state?
@@ -67,11 +61,12 @@ class ArrayStream extends Readable
     super _(@options).extend objectMode: true
   _read: (size) =>
     debug "_read #{size} #{JSON.stringify @arr[@index]}"
-    @push @arr[@index++] # Note: push(undefined) signals the end of the stream, so this just works^tm
+    @push @arr[@index] # Note: push(undefined) signals the end of the stream, so this just works^tm
+    @index += 1
 
 class DevNull extends Writable
   constructor: -> super objectMode: true
-  _write: (chunk, encoding, cb) => cb()
+  _write: (chunk, encoding, cb) -> cb()
 
 module.exports = class Understream
   constructor: (head) ->
@@ -97,7 +92,7 @@ module.exports = class Understream
     # If the final stream is Readable, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if is_readable _(@_streams).last()
-    handler = (err) =>
+    handler = (err) ->
       if cb.length is 1
         cb err
       else
