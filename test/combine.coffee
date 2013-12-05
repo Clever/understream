@@ -41,6 +41,7 @@ describe 'combine', ->
 
   _.each [
     []
+    [['a', 'b', 'c']]
     [['a', 'bc', 'def'] , []]
     [[]                 , ['a', 'bc', 'def']]
     [[]                 , []                                  , []]
