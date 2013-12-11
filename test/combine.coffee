@@ -49,6 +49,7 @@ describe 'combine', ->
     [[]                 , ['a', 'bc', 'def']                  , [1, 2, 3]]
     [[1, 2]             , [3, 4]                              , [5, 6]          , [7, 8]]
     [[0, 'zero']        , [{ a: 'a' }, [], 'so heterogenous'] , [new Date(), 5]]
+    ([] for i in [0..15])
   ], (stream_data) ->
     _.each [
       {constructor: stream_from_array}
