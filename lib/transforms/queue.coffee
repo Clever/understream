@@ -10,14 +10,14 @@ module.exports = class Queue extends Transform
     @options = { fn: @options } if _(@options).isFunction()
     _(@options).defaults concurrency: @stream_opts.highWaterMark or 10
     @q = async.queue (payload, cb) =>
-      return cb() if @_err # Don't try to keep processing if we've errored
+      return setImmediate cb if @_err # Don't try to keep processing if we've errored
       @options.fn payload, (err, out) =>
-        return cb() if @_err
+        return setImmediate cb if @_err
         if err
           @end() # End the stream immediately if there's an error
-          return cb @_err = err # Store this so that _flush has access to it
+          return setImmediate cb, @_err = err # Store this so that _flush has access to it
         @push out unless out is undefined
-        cb()
+        setImmediate cb
     , @options.concurrency
   _docs_in_queue: => @q.length() + @q.running()
   _transform: (chunk, encoding, cb) =>

@@ -15,6 +15,17 @@ describe '_.queue', ->
       assert.deepEqual spy.args[i][0], input[i] for i in input.length
       done()
 
+  it "doesn't release the zalgo", (done) ->
+    input = (i for i in [0...1000])
+    recur = (i, result, cb) ->
+      return cb null, result unless i
+      recur i - 1, result, cb
+    spy = sinon.spy (chunk, cb) -> recur 20, chunk, cb
+    _(input).stream().queue(spy).run (err) ->
+      assert.ifError err
+      assert.equal spy.callCount, 1000
+      done()
+
   _([1, 2, 3]).each (concurrency) ->
     it "stream properly obeys backpressure with concurrency #{concurrency}", (done) ->
       input  = [{a:'1'}, {b:'2'}, {c:'3'}, {d:'4'}, {e:'5'}, {f:'6'}, {g:'7'}]
