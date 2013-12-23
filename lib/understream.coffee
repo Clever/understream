@@ -40,6 +40,9 @@ add_reporter = (streams) ->
   _(streams).each (stream) -> stream.on 'error', -> clearInterval interval
   _(streams).last().on 'finish', -> clearInterval interval
 
+pipeline_of_streams = (streams) ->
+  _.flatten _(streams).map (stream) -> stream._pipeline?() or [stream]
+
 pipe_streams_together = (streams...) ->
   return if streams.length < 2
   streams[i].pipe streams[i + 1] for i in [0..streams.length - 2]
@@ -99,7 +102,7 @@ module.exports = class Understream
         cb err, result
     _(@_streams).last().on 'finish', handler
     # Catch any errors thrown emitted by a stream with a handler
-    pipeline = _.flatten _(@_streams).map (stream) -> stream._pipeline?() or [stream]
+    pipeline = pipeline_of_streams @_streams
     add_reporter pipeline
     _.each pipeline, (stream) ->
       domainify stream
@@ -109,9 +112,10 @@ module.exports = class Understream
     @
   readable: => # If you want to get out of understream and access the raw stream
     pipe_streams_together @_streams...
-    _.extend _.last(@_streams), _pipeline: => @_streams
+    [streams..., last] = @_streams
+    _.extend last, _pipeline: -> pipeline_of_streams(streams).concat [last]
   duplex: =>
-    _.extend new StreamCombiner(@_streams...), _pipeline: => @_streams
+    _.extend new StreamCombiner(@_streams...), _pipeline: => pipeline_of_streams @_streams
   stream: => @readable() # Just an alias for compatibility purposes
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance
