@@ -29,8 +29,16 @@ describe '_.first', ->
     LIMIT = 5
     input = [0..100]
     seen = 0
-    _(input).stream().each(-> seen++).first(LIMIT).run (err, result) ->
-      assert.ifError err
-      assert.equal seen, input.length
-      assert.equal result.length, LIMIT
-      done()
+    _(input).stream()
+      # Ensure there's no buffering, otherwise the objects could get past the
+      # each() but be buffered before first() and the test would still past.
+      # Without buffers, we guarantee that every object that goes through
+      # each() goes through first().
+      .defaults(objectMode: true, highWaterMark: 0)
+      .each(-> seen++)
+      .first(LIMIT)
+      .run (err, result) ->
+        assert.ifError err
+        assert.equal seen, input.length
+        assert.equal result.length, LIMIT
+        done()
