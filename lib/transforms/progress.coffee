@@ -5,7 +5,9 @@ debug  = require('debug') 'us:progress'
 # passthrough stream that reports progress
 module.exports = class Progress extends Transform
   constructor: (@stream_opts, @options) ->
-    super @stream_opts
+    # In order to have as little effect as possible on performance, this stream
+    # shouldn't buffer any data, so set highWaterMark to 0.
+    super _.extend @stream_opts, highWaterMark: 0
     _(@options).defaults { every: 1000, name: '.' }
     @value = []
     @cnt = 0
