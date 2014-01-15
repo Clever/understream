@@ -1,6 +1,6 @@
 {
   "name": "understream",
-  "version": "0.8.7",
+  "version": "0.9.0",
   "description": "stream helpers",
   "engines": {
     "node": ">=0.10.x"
