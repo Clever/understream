@@ -73,7 +73,7 @@ class DevNull extends Writable
 
 module.exports = class Understream
   constructor: (head) ->
-    @_defaults = highWaterMark: 1000, objectMode: true
+    @_defaults = highWaterMark: 20, objectMode: true
     head = new ArrayStream {}, head if _(head).isArray()
     if is_readable head
       @_streams = [head]
