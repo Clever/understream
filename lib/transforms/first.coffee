@@ -7,6 +7,5 @@ module.exports = class First extends Transform
   _transform: (chunk, encoding, cb) =>
     @seen++
     if @seen > @first
-      @push null
-      return
+      return cb null, null # null ends the stream
     cb null, chunk

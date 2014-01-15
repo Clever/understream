@@ -20,12 +20,25 @@ describe '_.first', ->
       assert.deepEqual result, _(input).first(LIMIT)
       done()
 
-  it 'only sees limit + highWaterMark objects', (done) ->
+  # It's important to read every object from the source stream in case there
+  # are other streams also reading from the source stream. If this stream stops
+  # reading from the source stream, backpressure applied by this stream will
+  # cause the stream to stop pulling new data, which will prevent other streams
+  # from reading from it as well.
+  it 'reads every object from the source stream, discarding objects after the limit', (done) ->
     LIMIT = 5
-    HIGHWATERMARK = 1
     input = [0..100]
     seen = 0
-    _(input).stream().defaults(objectMode: true, highWaterMark: HIGHWATERMARK).each(-> seen++).first(LIMIT).run (err, result) ->
-      assert.ifError err
-      assert.equal seen, LIMIT+HIGHWATERMARK*2 # 1 highWaterMark for buffering in first, 1 highWaterMark for buffering in each
-      done()
+    _(input).stream()
+      # Ensure there's no buffering, otherwise the objects could get past the
+      # each() but be buffered before first() and the test would still past.
+      # Without buffers, we guarantee that every object that goes through
+      # each() goes through first().
+      .defaults(objectMode: true, highWaterMark: 0)
+      .each(-> seen++)
+      .first(LIMIT)
+      .run (err, result) ->
+        assert.ifError err
+        assert.equal seen, input.length
+        assert.equal result.length, LIMIT
+        done()
