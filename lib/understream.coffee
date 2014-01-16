@@ -15,12 +15,12 @@ domainify = (stream) ->
     dmn = domain.create()
     stream._transform = dmn.bind stream._transform.bind stream
     stream._flush = dmn.bind stream._flush.bind stream if stream._flush?
-    dmn.on 'error', (err) ->
+    dmn.once 'error', (err) ->
       dmn.exit()
       stream.emit 'error', err
     # Use .exit() instead of .dispose() because .dispose() was breaking the
     # tests. Something to look into at some point maybe... (-Jonah)
-    stream.on 'end', -> dmn.exit()
+    stream.once 'end', -> dmn.exit()
 
 state_to_string = (state) ->
   if state?
