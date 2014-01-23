@@ -6,7 +6,7 @@ async = require 'async'
 
 describe '_.split', ->
   it 'requires a sep argument', ->
-    assert.throws (->new Understream().split()), /requires separator/
+    assert.throws (-> new Understream().split()), /requires separator/
     assert.throws (-> new Understream().split({})), /requires separator/
     assert.throws (-> new Understream().split({asdf: 'asdf'})), /requires separator/
 
