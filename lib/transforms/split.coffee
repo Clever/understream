@@ -7,10 +7,9 @@ module.exports = class Split extends Transform
     delete @stream_opts.objectMode # must take in strings or buffers
     super @stream_opts
     @_readableState.objectMode = true
-    if not @options? or
-    not (_(@options).isString() or @options instanceof RegExp or _(@options).isObject())
-      throw new Error("Split requires separator")
     @options = { sep: @options } if _(@options).isString() or @options instanceof RegExp
+    if not @options?.sep?
+      throw new Error("Split requires separator")
     @leftover = ''
   _flush: (cb) =>
     @push @leftover

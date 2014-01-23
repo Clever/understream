@@ -1,7 +1,7 @@
 assert = require 'assert'
 async = require 'async'
 _     = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 sinon = require 'sinon'
 
 describe '_.each', ->
@@ -11,7 +11,7 @@ describe '_.each', ->
     asynch = (chunk, cb) -> cb null, chunk # TODO: error handling
     async.forEach [synch, asynch], (fn, cb_fe) ->
       spy = sinon.spy fn
-      _(input).stream().each(spy).run (err, result) ->
+      new Understream(input).each(spy).run (err, result) ->
         assert.ifError err
         assert.deepEqual input, result
         assert.equal spy.callCount, 2

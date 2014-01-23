@@ -1,7 +1,7 @@
 assert = require 'assert'
 async  = require 'async'
 _      = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 
 # domain_thrown (0,8) vs domainThrown (0.10)
 was_thrown = (domain_err) ->
@@ -12,7 +12,7 @@ describe '_.stream error handling', ->
 
   it 'run() requires an error handler', ->
     assert.throws ->
-      _([]).stream().run()
+      new Understream([]).run()
     , Error
 
   it "allows user to handle any emitted errors", (done) ->
@@ -24,7 +24,7 @@ describe '_.stream error handling', ->
         else
           cb new Error 'one and done'
         cnt += 1
-      _([1,2,3]).stream()[fn](bad_fn).run (err) ->
+      new Understream([1,2,3])[fn](bad_fn).run (err) ->
         assert.equal err.message, 'one and done'
         cb_fe()
     , done
@@ -38,7 +38,7 @@ describe '_.stream error handling', ->
       else
         throw new Error 'one and done'
       cnt += 1
-    _([1,2,3]).stream().each(bad_fn).run (err) ->
+    new Understream([1,2,3]).each(bad_fn).run (err) ->
       assert.equal was_thrown(err), true, "Expected error caught by domain to be thrown"
       assert.equal err.message, 'one and done'
       done()
@@ -51,7 +51,7 @@ describe '_.stream error handling', ->
       else
         setTimeout (-> cb new Error 'one and done'), 500
       cnt += 1
-    _([1,2,3]).stream().each(bad_fn).run (err) ->
+    new Understream([1,2,3]).each(bad_fn).run (err) ->
       assert.equal err.message, 'one and done'
       done()
 
@@ -64,7 +64,7 @@ describe '_.stream error handling', ->
       else
         setTimeout (-> throw new Error 'one and done'), 500
       cnt += 1
-    _([1,2,3]).stream().each(bad_fn).run (err) ->
+    new Understream([1,2,3]).each(bad_fn).run (err) ->
       assert.equal was_thrown(err), true, "Expected error caught by domain to be thrown"
       assert.equal err.message, 'one and done'
       done()
@@ -79,15 +79,15 @@ describe '_.stream error handling', ->
   , (bad_fn, action) ->
     _.each ['readable', 'duplex'], (getter) ->
       it "catches #{action} errors from any stream in the entire pipeline using #{getter}", (done) ->
-        other_pipeline = _.stream([1]).each(bad_fn).each(-> )[getter]()
-        _(other_pipeline).stream().each(-> ).run (err) ->
+        other_pipeline = new Understream([1]).each(bad_fn).each(-> )[getter]()
+        new Understream(other_pipeline).each(-> ).run (err) ->
           assert err?, 'Expected error'
           assert.deepEqual err.message, expected_err().message
           done()
 
     it "catches #{action} errors from the join 'from' stream", (done) ->
-      _.stream(['to']).join
-        from: _.stream(['from']).each(bad_fn).each(-> ).readable()
+      new Understream(['to']).join
+        from: new Understream(['from']).each(bad_fn).each(-> ).readable()
         on: 'doesnt matter'
         type: 'inner'
       .run (err) ->

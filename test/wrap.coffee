@@ -1,7 +1,7 @@
 assert = require 'assert'
 async = require 'async'
 _     = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 
 describe '_.stream', ->
 
@@ -11,7 +11,7 @@ describe '_.stream', ->
     rs = new Readable objectMode: true
     rs.push item for item in input
     rs.push null
-    _(rs).stream().run (err, result) ->
+    new Understream(rs).run (err, result) ->
       assert.ifError err
       assert.deepEqual input, result
       done()
@@ -30,7 +30,7 @@ describe '_.stream', ->
           cb_wf err
       (cb_wf) ->
         cnt = 0
-        _(Doc.find().stream()).stream().each (doc) ->
+        new Understream(Doc.find().stream()).each (doc) ->
           cnt++
           assert doc.foo in input
         .run (err) ->

@@ -1,11 +1,11 @@
 assert = require 'assert'
 _      = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 
 describe '_.transform', ->
   it 'works with a custom _transform function', (done) ->
     input = ['a', 'b', 'c']
-    _(input).stream().transform (chunk, enc, cb) ->
+    new Understream(input).transform (chunk, enc, cb) ->
       @push chunk
       @push chunk + '2'
       cb()
@@ -16,7 +16,7 @@ describe '_.transform', ->
 
   it 'works with a custom _flush function', (done) ->
     input = ['a', 'b', 'c']
-    _(input).stream().transform(
+    new Understream(input).transform(
       (chunk, enc, cb) -> @push chunk; cb()
     , (cb) -> @push 'bye bye'; cb()
     ).run (err, data) ->

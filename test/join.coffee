@@ -2,14 +2,14 @@ assert = require 'assert'
 async  = require 'async'
 inspect = require('util').inspect
 _      = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 {Readable} = require 'stream'
 
 describe '_.join', ->
   it 'select * inner join on A.key=B.key', (done) ->
-    A = _([{d: 0, e: 2, a: 0}, {d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
-    B = _([{a:1, b:11, c: 22}, {a:2, b: 22, c: 44}, { a:3, b: 33, c: 66 }]).stream().stream()
-    A.join({ from: B, on: 'a' }).run (err, data) ->
+    A = new Understream([{d: 0, e: 2, a: 0}, {d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}])
+    B = new Understream([{a:1, b:11, c: 22}, {a:2, b: 22, c: 44}, { a:3, b: 33, c: 66 }])
+    A.join({ from: B.stream(), on: 'a' }).run (err, data) ->
       assert.ifError err
       assert.deepEqual data, [
         {d: 1, e: 2, a: 1, b: 11, c: 22}
@@ -20,8 +20,8 @@ describe '_.join', ->
       done()
 
   it 'select * inner join on A.a=B.z', (done) ->
-    A = _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
-    B = _([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}]).stream()
+    A = new Understream([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}])
+    B = new Understream([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}])
     A.join({ from: B.stream(), on: {'a':'z'}}).run (err, data) ->
       assert.ifError err
       assert.deepEqual data, [
@@ -33,9 +33,9 @@ describe '_.join', ->
       done()
 
   it 'select A.*, B.b join on A.a=B.z', (done) ->
-    A = _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
-    B = _([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}]).stream().stream()
-    A.join({ from: B, on: {'a': 'z'}, select: 'b'}).run (err, data) ->
+    A = new Understream([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}])
+    B = new Understream([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}])
+    A.join({ from: B.stream(), on: {'a': 'z'}, select: 'b'}).run (err, data) ->
       assert.ifError err
       assert.deepEqual data, [
         {d: 1, e: 2, a: 1, b: 11}
@@ -46,9 +46,9 @@ describe '_.join', ->
       done()
 
   it 'select A.*, B.b, B.c join on A.a=B.z', (done) ->
-    A = _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
-    B = _([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}]).stream().stream()
-    A.join({ from: B, on: {'a': 'z'}, select: ['b','c']}).run (err, data) ->
+    A = new Understream([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}])
+    B = new Understream([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}])
+    A.join({ from: B.stream(), on: {'a': 'z'}, select: ['b','c']}).run (err, data) ->
       assert.ifError err
       assert.deepEqual data, [
         {d: 1, e: 2, a: 1, b: 11, c: 22}
@@ -59,9 +59,9 @@ describe '_.join', ->
       done()
 
   it 'select A.*, B.b as b_, B.c join on A.a=B.z', (done) ->
-    A = _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}]).stream()
-    B = _([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}]).stream().stream()
-    A.join({ from: B, on: {'a': 'z'}, select: [{'b':'b_'},'c']}).run (err, data) ->
+    A = new Understream([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: 2}])
+    B = new Understream([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}])
+    A.join({ from: B.stream(), on: {'a': 'z'}, select: [{'b':'b_'},'c']}).run (err, data) ->
       assert.ifError err
       assert.deepEqual data, [
         {d: 1, e: 2, a: 1, b_: 11, c: 22}
@@ -72,9 +72,9 @@ describe '_.join', ->
       done()
 
   it 'select A.*, B.b as b_, B.c as c_ left join on A.a=B.z', (done) ->
-    A = _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: ''}]).stream()
-    B = _([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}]).stream().stream()
-    A.join({ type: 'left', from: B, on: {'a': 'z'}, select: {'b': 'b_','c': 'c_'}}).run (err, data) ->
+    A = new Understream([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: ''}])
+    B = new Understream([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}])
+    A.join({ type: 'left', from: B.stream(), on: {'a': 'z'}, select: {'b': 'b_','c': 'c_'}}).run (err, data) ->
       assert.ifError err
       assert.deepEqual data, [
         {d: 1, e: 2, a: 1, b_: 11, c_: 22}
@@ -85,9 +85,9 @@ describe '_.join', ->
       done()
 
   it 'select A.*, B.b as b_, B.c as c_ join on A.a=B.z', (done) ->
-    A = _([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: ''}]).stream()
-    B = _([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}]).stream().stream()
-    A.join({ from: B, on: {'a': 'z'}, select: {'b': 'b_','c': 'c_'}}).run (err, data) ->
+    A = new Understream([{d: 1, e: 2, a: 1}, {d: 2, e: 3, a: 1}, {d: 3, e: 4, a: 2}, {d: 4, e: 5, a: ''}])
+    B = new Understream([{z:1, b:11, c: 22}, {z:2, b: 22, c: 44}])
+    A.join({ from: B.stream(), on: {'a': 'z'}, select: {'b': 'b_','c': 'c_'}}).run (err, data) ->
       assert.ifError err
       assert.deepEqual data, [
         {d: 1, e: 2, a: 1, b_: 11, c_: 22}
@@ -160,8 +160,8 @@ describe '_.join', ->
     ]
 
     run_join = (left, right, done) ->
-      _.stream(left).join
-        from: _.stream(right).stream()
+      new Understream(left).join
+        from: new Understream(right).stream()
         on: 'key'
         type: 'outer'
         sorted: true
@@ -230,7 +230,7 @@ describe '_.join', ->
             i += 1
           , 100
 
-      _(left_input).stream()
+      new Understream(left_input)
         .join
           from: right
           on: 'key'
