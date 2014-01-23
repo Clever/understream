@@ -4,8 +4,6 @@ Understream = require "#{__dirname}/../index"
 async = require 'async'
 {Readable} = require 'stream'
 
-requires_sep = (err) -> err.message is 'Split requires separator'
-
 describe '_.split', ->
   it 'requires a sep argument', ->
     assert.throws (->new Understream().split()), /requires separator/
