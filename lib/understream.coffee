@@ -142,8 +142,6 @@ module.exports = class Understream
       @pipe instance
       debug 'created', instance.constructor.name, @_streams.length
       @
-  # For backwards compatibility and easier mixing in to underscore
-  @exports: -> stream: (head) => new @ head
 
 Understream.mixin _(["#{__dirname}/transforms", "#{__dirname}/readables"]).chain()
   .map (dir) ->

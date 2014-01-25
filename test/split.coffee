@@ -1,20 +1,14 @@
 assert = require 'assert'
 _      = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 async = require 'async'
 {Readable} = require 'stream'
 
 describe '_.split', ->
   it 'requires a sep argument', ->
-    assert.throws ->
-      _().stream().split()
-    , /requires separator/
-    assert.throws ->
-      _().stream({}).split()
-    , /requires separator/
-    assert.throws ->
-      _().stream({asdf:'asdf'}).split()
-    , /requires separator/
+    assert.throws (-> new Understream().split()), /requires separator/
+    assert.throws (-> new Understream().split({})), /requires separator/
+    assert.throws (-> new Understream().split({asdf: 'asdf'})), /requires separator/
 
   it 'must be piped string or buffer data', (done) ->
     test_inputs = [
@@ -22,7 +16,7 @@ describe '_.split', ->
       [{a:'1'}, {b:'2'}, {c: '3'}]
     ]
     async.forEachSeries test_inputs, (test_input, cb_fe) ->
-      _(test_input).stream().split("test").run (err) ->
+      new Understream(test_input).split("test").run (err) ->
         assert err.message.match /non-string\/buffer chunk/
         cb_fe()
     , done
@@ -37,7 +31,7 @@ describe '_.split', ->
       r.push "1\n2\n3"
       r.push null
       r._read = ->
-      _(r).stream().split(arg_spec.arg).run (err, val) ->
+      new Understream(r).split(arg_spec.arg).run (err, val) ->
         assert.ifError err
         assert.deepEqual _(val).map(String), ['1','2','3']
         done()

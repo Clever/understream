@@ -3,8 +3,7 @@ _ = require 'underscore'
 {PassThrough, Readable, Writable} = require 'stream'
 {inspect} = require 'util'
 
-understream = require '../index'
-_.mixin understream.exports()
+Understream = require '../index'
 
 stream_from_array = (arr, objectMode = true) ->
   rs = new Readable {objectMode}
@@ -30,14 +29,14 @@ describe 'combine', ->
       [new Writable(), stream_from_array([]), new Writable()]
       [stream_from_array([]), stream_from_array([]), new Writable()]
     ], (streams) ->
-      assert.throws (-> _.stream().combine(streams)), /Expected Readable streams/
+      assert.throws (-> new Understream().combine(streams)), /Expected Readable streams/
   it 'accepts any Readable streams', ->
     _.each [
       [new PassThrough(), stream_from_array([])]
       [new PassThrough(), stream_from_array([]), new PassThrough()]
       [new PassThrough(), stream_from_array([]), stream_from_array([])]
     ], (streams) ->
-      assert.doesNotThrow (-> _.stream().combine(streams))
+      assert.doesNotThrow (-> new Understream().combine(streams))
 
   _.each [
     []
@@ -57,7 +56,7 @@ describe 'combine', ->
     ], ({constructor, name}) ->
       it "#{if name then name + ' ' else ''}combines #{inspect stream_data}", (done) ->
         streams = _(stream_data).map (data) -> constructor data
-        _.stream().combine(streams).run (err, output) ->
+        new Understream().combine(streams).run (err, output) ->
           assert.ifError err
           # Order doesn't matter
           assert.deepEqual output.sort(), _(stream_data).flatten(true).sort()
@@ -66,7 +65,7 @@ describe 'combine', ->
   it 'works with objectMode: false', (done) ->
     stream_data = [['abc', 'def', 'gh'], ['123', '456', '78'], [new Date().toString()]]
     streams = _(stream_data).map (stream) -> stream_from_array stream, false
-    _.stream().combine(streams).run (err, output) ->
+    new Understream().combine(streams).run (err, output) ->
       assert.ifError err
       assert.equal _(output).invoke('toString').sort().join(''),
         _(stream_data).flatten(true).sort().join('')
@@ -79,5 +78,5 @@ describe 'combine', ->
       [stream_from_array([]), stream_from_array([]), stream_from_array([], false)]
       [stream_from_array([]), stream_from_array([], false), stream_from_array([], false)]
     ], (streams) ->
-      combined = _.stream().combine(streams).stream()
+      combined = new Understream().combine(streams).stream()
       assert combined._readableState.objectMode

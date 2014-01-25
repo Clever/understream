@@ -1,7 +1,7 @@
 assert = require 'assert'
 async = require 'async'
 _     = require 'underscore'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 sinon = require 'sinon'
 
 describe '_.map', ->
@@ -12,7 +12,7 @@ describe '_.map', ->
     expected = _(input).map(_.keys)
     async.forEach [synch, asynch], (fn, cb_fe) ->
       spy = sinon.spy fn
-      _(input).stream().map(spy).run (err, result) ->
+      new Understream(input).map(spy).run (err, result) ->
         assert.ifError err
         assert.deepEqual expected, result
         assert.equal spy.callCount, 2

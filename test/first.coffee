@@ -1,13 +1,13 @@
 _     = require 'underscore'
 assert = require 'assert'
 async = require 'async'
-_.mixin require("#{__dirname}/../index").exports()
+Understream = require "#{__dirname}/../index"
 
 describe '_.first', ->
   # fails for node < v0.10.20 due to https://github.com/joyent/node/issues/6183
   it 'sends through all objects if limit > size of stream', (done) ->
     input = [0..10]
-    _(input).stream().first(100).run (err, result) ->
+    new Understream(input).first(100).run (err, result) ->
       assert.ifError err
       assert.deepEqual result, input
       done()
@@ -15,7 +15,7 @@ describe '_.first', ->
   it 'sends through limit objects if limit < size of stream', (done) ->
     LIMIT = 5
     input = [0..10]
-    _(input).stream().first(LIMIT).run (err, result) ->
+    new Understream(input).first(LIMIT).run (err, result) ->
       assert.ifError err
       assert.deepEqual result, _(input).first(LIMIT)
       done()
@@ -29,7 +29,7 @@ describe '_.first', ->
     LIMIT = 5
     input = [0..100]
     seen = 0
-    _(input).stream()
+    new Understream(input)
       # Ensure there's no buffering, otherwise the objects could get past the
       # each() but be buffered before first() and the test would still past.
       # Without buffers, we guarantee that every object that goes through
