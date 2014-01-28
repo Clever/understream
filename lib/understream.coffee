@@ -1,7 +1,7 @@
 {Readable, Writable, PassThrough, Transform} = require 'stream'
 fs     = require('fs')
 _      = require 'underscore'
-debug  = require('debug') 'us'
+debug  = require('debug') 'us:'
 domain = require 'domain'
 {EventEmitter} = require 'events'
 {is_readable} = require './helpers'
@@ -43,7 +43,7 @@ to_report_string = (stream) -> _([
 ]).compact().join(' ')
 
 add_reporter = (streams) ->
-  report = -> console.log _(streams).map(to_report_string).join(' | ')
+  report = -> debug _(streams).map(to_report_string).join(' | ')
   interval = setInterval report, 5000
   _(streams).each (stream) -> add_listener_unsafe stream, 'error', -> clearInterval interval
   _(streams).last().on 'finish', -> clearInterval interval
