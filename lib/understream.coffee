@@ -1,10 +1,18 @@
 {Readable, Writable, PassThrough, Transform} = require 'stream'
 fs     = require('fs')
 _      = require 'underscore'
-debug  = require('debug') 'us'
+debug  = require('debug') 'us:'
 domain = require 'domain'
 {EventEmitter} = require 'events'
 {is_readable} = require './helpers'
+
+# Adds a listener to an EventEmitter but first bumps the max listeners limit
+# for that emitter. The limit is meant to prevent memory leaks, so this should
+# only be used when you're sure you're not creating a memory leak. Good luck
+# convincing yourself you're safe...
+add_listener_unsafe = (emitter, event, listener) ->
+  emitter.setMaxListeners emitter._maxListeners + 1
+  emitter.addListener event, listener
 
 _.mixin isPlainObject: (obj) -> obj.constructor is {}.constructor
 
@@ -20,7 +28,7 @@ domainify = (stream) ->
       stream.emit 'error', err
     # Use .exit() instead of .dispose() because .dispose() was breaking the
     # tests. Something to look into at some point maybe... (-Jonah)
-    stream.once 'end', -> dmn.exit()
+    add_listener_unsafe stream, 'end', -> dmn.exit()
 
 state_to_string = (state) ->
   if state?
@@ -35,9 +43,9 @@ to_report_string = (stream) -> _([
 ]).compact().join(' ')
 
 add_reporter = (streams) ->
-  report = -> console.log _(streams).map(to_report_string).join(' | ')
+  report = -> debug _(streams).map(to_report_string).join(' | ')
   interval = setInterval report, 5000
-  _(streams).each (stream) -> stream.on 'error', -> clearInterval interval
+  _(streams).each (stream) -> add_listener_unsafe stream, 'error', -> clearInterval interval
   _(streams).last().on 'finish', -> clearInterval interval
 
 pipeline_of_streams = (streams) ->
@@ -106,7 +114,7 @@ module.exports = class Understream
     add_reporter pipeline
     _.each pipeline, (stream) ->
       domainify stream
-      stream.on 'error', handler
+      add_listener_unsafe stream, 'error', handler
     debug 'running'
     pipe_streams_together @_streams...
     @
