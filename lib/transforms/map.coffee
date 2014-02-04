@@ -16,4 +16,4 @@ module.exports = class Map extends Transform
         cb()
     else
       @push @options.fn(chunk)
-      cb()
+      setImmediate cb
