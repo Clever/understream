@@ -13,7 +13,7 @@ module.exports = class Map extends Transform
       @options.fn chunk, (err, result) =>
         return cb err if err
         @push result
-        cb()
+        setImmediate cb
     else
       @push @options.fn(chunk)
       setImmediate cb
