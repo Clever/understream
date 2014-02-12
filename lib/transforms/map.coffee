@@ -11,9 +11,10 @@ module.exports = class Map extends Transform
     debug "_transform #{JSON.stringify chunk}"
     if @options._async
       @options.fn chunk, (err, result) =>
-        return cb err if err
+        if err?
+          return setImmediate -> cb err
         @push result
-        cb()
+        setImmediate cb
     else
       @push @options.fn(chunk)
-      cb()
+      setImmediate cb
