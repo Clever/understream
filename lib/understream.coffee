@@ -46,7 +46,7 @@ add_reporter = (streams) ->
   report = -> debug _(streams).map(to_report_string).join(' | ')
   interval = setInterval report, 5000
   _(streams).each (stream) -> add_listener_unsafe stream, 'error', -> clearInterval interval
-  _(streams).last().on 'finish', -> clearInterval interval
+  add_listener_unsafe _(streams).last(), 'finish', -> clearInterval interval
 
 pipeline_of_streams = (streams) ->
   _.flatten _(streams).map (stream) -> stream._pipeline?() or [stream]
