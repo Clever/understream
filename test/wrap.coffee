@@ -1,6 +1,8 @@
 assert = require 'assert'
 async = require 'async'
 _     = require 'underscore'
+mongoose = require 'mongoose'
+path = require 'path'
 Understream = require "#{__dirname}/../index"
 
 describe '_.stream', ->
@@ -17,8 +19,7 @@ describe '_.stream', ->
       done()
 
   it 'wraps a mongoose stream', (done) ->
-    mongoose = require 'mongoose'
-    mongoose.connect 'localhost/test-understream'
+    mongoose.connect "#{process.env.MONGO_URL}/test-understream"
     Doc = mongoose.model "Doc", new mongoose.Schema { foo: String }
     input = ['a', 'b', 'c']
     async.waterfall [

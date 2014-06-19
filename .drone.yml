@@ -1,0 +1,11 @@
+image: node0.10
+script:
+  - export MONGO_URL=mongodb://$MONGODB_PORT_27017_TCP_ADDR:$MONGODB_PORT_27017_TCP_PORT
+  - npm install
+  - npm test
+services:
+  - mongodb:2.4
+notify:
+  email:
+    recipients:
+      - drone@clever.com
