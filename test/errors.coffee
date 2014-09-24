@@ -95,6 +95,15 @@ describe '_.stream error handling', ->
         assert.deepEqual err.message, expected_err().message
         done()
 
+    it "catches #{action} errors from streams passed to combine", (done) ->
+      combine = new Understream().combine([
+        new Understream([1]).readable()
+        new Understream([2]).each(bad_fn).each(->).readable()
+      ]).run (err) ->
+        assert err?, 'Expected error'
+        assert.deepEqual err.message, expected_err().message
+        done()
+
   describe 'increases the maxListeners limit to account for error handlers it adds', ->
     num_listeners = (stream) -> stream.listeners('error').length + stream.listeners('end').length
 
