@@ -17,5 +17,4 @@ module.exports = class Combine
       stream.on 'end', cb
       stream.pipe output, end: false
     output.push null unless streams.length
-    output = _.extend output, _pipeline: -> streams
     return output
