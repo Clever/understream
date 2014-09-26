@@ -65,7 +65,9 @@ add_reporter = (streams) ->
 pipeline_of_streams = (streams) ->
   _.flatten _(streams).map (stream) ->
     if stream._pipeline?
-      pipeline_of_streams(stream._pipeline()).concat [stream]
+      # In old versions of Understream, _pipeline returned the stream. We defensively avoid
+      # recursing on the stream itself to prevent infinite loops.
+      pipeline_of_streams(_.without stream._pipeline(), stream).concat [stream]
     else
       [stream]
 
