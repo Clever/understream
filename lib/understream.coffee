@@ -48,8 +48,28 @@ add_reporter = (streams) ->
   _(streams).each (stream) -> add_listener_unsafe stream, 'error', -> clearInterval interval
   _(streams).last().on 'finish', -> clearInterval interval
 
+# Given an array of streams, produces an array of all streams involved in the pipeline of any of
+# those streams. To figure out what streams are involed in the pipeline, it calls each stream's
+# _pipeline method, expecting it to return an array of all the streams besides itself that are part
+# of its operation.
+#
+# For instance, the StreamCombiner stream below returns all the streams it is combining.
+# The join stream returns the secondary stream it is joining from.
+#
+# This allows Understream to handle errors and report progress on streams it would otherwise not
+# have any access to.
+#
+# If a stream does not implement _pipeline, the stream will be considered to have no other streams
+# involved in its execution. If a stream does implement _pipeline, all streams returned by _pipeline
+# will recursively be asked for their _pipeline.
 pipeline_of_streams = (streams) ->
-  _.flatten _(streams).map (stream) -> stream._pipeline?() or [stream]
+  _.flatten _(streams).map (stream) ->
+    if stream._pipeline?
+      # In old versions of Understream, _pipeline returned the stream. We defensively avoid
+      # recursing on the stream itself to prevent infinite loops.
+      pipeline_of_streams(_.without stream._pipeline(), stream).concat [stream]
+    else
+      [stream]
 
 pipe_streams_together = (streams...) ->
   return if streams.length < 2
@@ -65,6 +85,7 @@ class StreamCombiner extends PassThrough
     @tail = streams[streams.length - 1]
     pipe_streams_together streams...
     @on 'pipe', (source) => source.unpipe(@).pipe @head
+    @_pipeline = -> streams
   pipe: (dest, options) => @tail.pipe dest, options
 
 class ArrayStream extends Readable
@@ -121,9 +142,8 @@ module.exports = class Understream
   readable: => # If you want to get out of understream and access the raw stream
     pipe_streams_together @_streams...
     [streams..., last] = @_streams
-    _.extend last, _pipeline: -> pipeline_of_streams(streams).concat [last]
-  duplex: =>
-    _.extend new StreamCombiner(@_streams...), _pipeline: => pipeline_of_streams @_streams
+    _.extend last, _pipeline: -> streams
+  duplex: => new StreamCombiner @_streams...
   stream: => @readable() # Just an alias for compatibility purposes
   pipe: (stream_instance) => # If you want to add an instance of a stream to the middle of your understream chain
     @_streams.push stream_instance

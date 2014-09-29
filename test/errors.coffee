@@ -95,6 +95,23 @@ describe '_.stream error handling', ->
         assert.deepEqual err.message, expected_err().message
         done()
 
+    it "catches #{action} errors from streams passed to combine", (done) ->
+      combine = new Understream().combine([
+        new Understream([1]).readable()
+        new Understream([2]).each(bad_fn).each(->).readable()
+      ]).run (err) ->
+        assert err?, 'Expected error'
+        assert.deepEqual err.message, expected_err().message
+        done()
+
+  # For backwards-compatibility with streams created by old versions of Understream, in which the
+  # _pipeline method returned the stream itself among other streams.
+  it "doesnt infinitely loop on streams whose _pipeline method returns the stream itself", (done) ->
+    stream = new Understream([1]).each(->).readable()
+    pipeline = stream._pipeline()
+    stream._pipeline = -> pipeline.concat [stream]
+    new Understream(stream).run done
+
   describe 'increases the maxListeners limit to account for error handlers it adds', ->
     num_listeners = (stream) -> stream.listeners('error').length + stream.listeners('end').length
 
