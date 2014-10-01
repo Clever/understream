@@ -2,6 +2,7 @@ assert = require 'assert'
 async  = require 'async'
 _      = require 'underscore'
 Understream = require "#{__dirname}/../index"
+{Readable} = require 'stream'
 
 # domain_thrown (0,8) vs domainThrown (0.10)
 was_thrown = (domain_err) ->
@@ -128,3 +129,15 @@ describe '_.stream error handling', ->
           " but found that it increased by #{increase_in_max_listeners}" +
           " (from #{starting_max_listeners} to #{stream._maxListeners})"
         done()
+
+  class ErrorStream extends Readable
+    contructor: (@query) ->
+
+    _read: ->
+     @emit 'error', new Error("Error")
+     return @push null
+
+  it 'should only get one callback if stream errors then ends', (done) ->
+    new Understream(new ErrorStream()).run ->
+      # If done is called multiple times then mocha will complain
+      done()

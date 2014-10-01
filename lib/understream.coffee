@@ -124,7 +124,7 @@ module.exports = class Understream
     # If the final stream is Readable, attach a dummy writer to receive its output
     # and alleviate pressure in the pipe
     @_streams.push new DevNull() if is_readable _(@_streams).last()
-    handler = (err) ->
+    handler = _.once (err) ->
       if cb.length is 1
         cb err
       else
