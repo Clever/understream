@@ -131,13 +131,14 @@ describe '_.stream error handling', ->
         done()
 
   class ErrorStream extends Readable
-    contructor: (@query) ->
+    contructor: (_) ->
 
     _read: ->
      @emit 'error', new Error("Error")
      return @push null
 
   it 'should only get one callback if stream errors then ends', (done) ->
-    new Understream(new ErrorStream()).run ->
+    new Understream(new ErrorStream()).run (err) ->
+      assert err
       # If done is called multiple times then mocha will complain
       done()
