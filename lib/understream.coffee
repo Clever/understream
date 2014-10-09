@@ -1,6 +1,7 @@
 {Readable, Writable, PassThrough, Transform} = require 'stream'
 fs     = require('fs')
 _      = require 'underscore'
+_.mixin require 'underscore.deep'
 debug  = require('debug') 'us:'
 domain = require 'domain'
 {EventEmitter} = require 'events'
@@ -13,8 +14,6 @@ domain = require 'domain'
 add_listener_unsafe = (emitter, event, listener) ->
   emitter.setMaxListeners emitter._maxListeners + 1
   emitter.addListener event, listener
-
-_.mixin isPlainObject: (obj) -> obj.constructor is {}.constructor
 
 # Wraps a stream's _transform method in a domain, catching any thrown errors
 # and re-emitting them from the stream.
