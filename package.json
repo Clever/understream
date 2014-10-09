@@ -17,9 +17,10 @@
   },
   "license": "BSD",
   "dependencies": {
+    "async": "~0.2.5",
     "debug": "~0.7.2",
     "underscore": "~1.5.2",
-    "async": "~0.2.5"
+    "underscore.deep": "^0.5.1"
   },
   "devDependencies": {
     "coffee-script": "~1.6.2",
