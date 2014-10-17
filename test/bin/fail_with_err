@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "garbage"
+echo "trolling"
+>&2 echo "oh no!"
+
+exit 1
