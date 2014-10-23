@@ -12,10 +12,8 @@ module.exports = class Queue extends Transform
     @q = async.queue (payload, cb) =>
       return setImmediate cb if @_err # Don't try to keep processing if we've errored
       @options.fn payload, (err, out) =>
+        @_err ?= err if err
         return setImmediate cb if @_err
-        if err
-          @end() # End the stream immediately if there's an error
-          return setImmediate cb, @_err = err # Store this so that _flush has access to it
         @push out unless out is undefined
         setImmediate cb
     , @options.concurrency
