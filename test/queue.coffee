@@ -66,3 +66,14 @@ describe '_.queue', ->
       assert.ifError err
       assert.deepEqual result, input
       done()
+
+  it 'successfully ends stream if errors midstream in the queue', (done) ->
+    input  = ({a: i} for i in [0...100])
+    fn = (chunk, cb) ->
+      setImmediate ->
+        if chunk.a in [3,6,9,12]
+          return cb 'some error'
+        cb()
+    new Understream(input).queue(fn).run (err) ->
+      assert.equal err, 'some error'
+      done()
