@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/Clever/understream.png)](http://travis-ci.org/Clever/understream)
+![Build Status](https://drone.ops.clever.com/github.com/Clever/understream/status.svg?branch=master)
 
 # Understream
 
