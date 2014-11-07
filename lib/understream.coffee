@@ -12,7 +12,8 @@ domain = require 'domain'
 # only be used when you're sure you're not creating a memory leak. Good luck
 # convincing yourself you're safe...
 add_listener_unsafe = (emitter, event, listener) ->
-  emitter.setMaxListeners emitter._maxListeners + 1
+  if emitter._maxListeners?
+    emitter.setMaxListeners emitter._maxListeners + 1
   emitter.addListener event, listener
 
 # Wraps a stream's _transform method in a domain, catching any thrown errors

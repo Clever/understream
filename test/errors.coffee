@@ -113,22 +113,31 @@ describe '_.stream error handling', ->
     stream._pipeline = -> pipeline.concat [stream]
     new Understream(stream).run done
 
-  describe 'increases the maxListeners limit to account for error handlers it adds', ->
-    num_listeners = (stream) -> stream.listeners('error').length + stream.listeners('end').length
+  describe 'maxListeners', ->
+    describe 'increases the maxListeners limit to account for error handlers it adds', ->
+      num_listeners = (stream) -> stream.listeners('error').length + stream.listeners('end').length
 
-    stream = new Understream([]).stream()
-    _.each ['once', 'again'], (time) -> it time, (done) ->
-      starting_max_listeners = stream._maxListeners
-      starting_listeners = num_listeners stream
-      new Understream(stream).each(-> ).run (err) ->
+      stream = new Understream([]).stream()
+      _.each ['once', 'again'], (time) -> it time, (done) ->
+        starting_max_listeners = stream._maxListeners
+        starting_listeners = num_listeners stream
+        new Understream(stream).each(-> ).run (err) ->
+          assert.ifError err
+          added_listeners = num_listeners(stream) - starting_listeners
+          increase_in_max_listeners = stream._maxListeners - starting_max_listeners
+          assert.equal increase_in_max_listeners, added_listeners,
+            "Expected maxListeners to increase by the number of added handlers, #{added_listeners}," +
+            " but found that it increased by #{increase_in_max_listeners}" +
+            " (from #{starting_max_listeners} to #{stream._maxListeners})"
+          done()
+    describe 'it does not crash if there are no maxListeners', ->
+      stream = new Understream([]).stream()
+      delete stream._maxListeners
+      new_stream = new Understream(stream).each(-> ).run (err) ->
         assert.ifError err
-        added_listeners = num_listeners(stream) - starting_listeners
-        increase_in_max_listeners = stream._maxListeners - starting_max_listeners
-        assert.equal increase_in_max_listeners, added_listeners,
-          "Expected maxListeners to increase by the number of added handlers, #{added_listeners}," +
-          " but found that it increased by #{increase_in_max_listeners}" +
-          " (from #{starting_max_listeners} to #{stream._maxListeners})"
         done()
+        
+        
 
   class ErrorStream extends Readable
     contructor: (_) ->
