@@ -114,7 +114,7 @@ describe '_.stream error handling', ->
     new Understream(stream).run done
 
   describe 'maxListeners', ->
-    describe 'increases the maxListeners limit to account for error handlers it adds', ->
+    describe 'increases the limit to account for error handlers it adds', ->
       num_listeners = (stream) -> stream.listeners('error').length + stream.listeners('end').length
 
       stream = new Understream([]).stream()
@@ -130,7 +130,7 @@ describe '_.stream error handling', ->
             " but found that it increased by #{increase_in_max_listeners}" +
             " (from #{starting_max_listeners} to #{stream._maxListeners})"
           done()
-    describe 'it does not crash if there are no maxListeners', ->
+    describe 'does not crash if there are no maxListeners', ->
       stream = new Understream([]).stream()
       delete stream._maxListeners
       new_stream = new Understream(stream).each(-> ).run (err) ->
