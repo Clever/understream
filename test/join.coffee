@@ -157,6 +157,11 @@ describe '_.join', ->
       left: [ l.a, l.c, l.e ]
       right: [ r.a, r.d, r.e ]
       expected: [ [l.a, r.a], [l.c, null], [null, r.d], [l.e, r.e] ]
+    ,
+      # Non-unique join key
+      left: [ l.a, l.a, l.b]
+      right: [ r.a, r.b ]
+      expected: [ [l.a, r.a], [l.a, null], [l.b, r.b] ]
     ]
 
     run_join = (left, right, done) ->
