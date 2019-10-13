@@ -92,8 +92,12 @@ class ArrayStream extends Readable
   constructor: (@options, @arr, @index=0) ->
     super _(@options).extend objectMode: true
   _read: (size) =>
-    debug "_read #{size} #{JSON.stringify @arr[@index]}"
-    @push @arr[@index] # Note: push(undefined) signals the end of the stream, so this just works^tm
+    data = @arr[@index]
+    if data is undefined
+      @push null
+      return
+    debug "_read #{size} #{JSON.stringify data}"
+    @push data
     @index += 1
 
 class DevNull extends Writable
