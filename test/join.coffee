@@ -226,7 +226,11 @@ describe '_.join', ->
         # Simulate some data being loaded after a delay
         else
           setTimeout ->
-            right.push right_input[i]
+            data = right_input[i]
+            if data?
+              right.push right_input[i]
+            else
+              right.push null
             i += 1
           , 100
 

@@ -3,6 +3,7 @@ async  = require 'async'
 _      = require 'underscore'
 Understream = require "#{__dirname}/../index"
 {Readable} = require 'stream'
+{DEFAULT_MAX_LISTENERS} = require '../lib/helpers'
 
 # domain_thrown (0,8) vs domainThrown (0.10)
 was_thrown = (domain_err) ->
@@ -119,7 +120,7 @@ describe '_.stream error handling', ->
 
       stream = new Understream([]).stream()
       _.each ['once', 'again'], (time) -> it time, (done) ->
-        starting_max_listeners = stream._maxListeners
+        starting_max_listeners = stream._maxListeners || DEFAULT_MAX_LISTENERS
         starting_listeners = num_listeners stream
         new Understream(stream).each(-> ).run (err) ->
           assert.ifError err

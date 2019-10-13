@@ -19,7 +19,7 @@ describe '_.stream', ->
       done()
 
   it 'wraps a mongoose stream', (done) ->
-    mongoose.connect "#{process.env.MONGO_URL}/test-understream"
+    mongoose.connect "#{process.env.MONGO_URL}/test-understream", {useNewUrlParser: true}
     Doc = mongoose.model "Doc", new mongoose.Schema { foo: String }
     input = ['a', 'b', 'c']
     async.waterfall [

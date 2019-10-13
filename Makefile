@@ -4,9 +4,9 @@
 # `make test` runs all the tests
 # `make test/each.coffee` runs just that test
 .PHONY: test test-cov
-TESTS=$(shell cd test && ls *.coffee | sed s/\.coffee$$//)
+TESTS=$(shell ls test/*.coffee | sed s/\.coffee$$//)
 LIBS=$(shell find . -regex "^./lib\/.*\.coffee\$$" | sed s/\.coffee$$/\.js/ | sed s/lib/lib-js/)
-MONGO_URL ?= localhost # needed for tests
+MONGO_URL ?= mongodb://127.0.0.1:27017 # needed for tests
 
 build: $(LIBS)
 
@@ -16,7 +16,7 @@ lib-js/%.js : lib/%.coffee
 test: $(TESTS)
 
 $(TESTS): build
-	MONGO_URL=$(MONGO_URL) DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --bail --compilers coffee:coffee-script test/$@.coffee
+	MONGO_URL=$(MONGO_URL) DEBUG=* NODE_ENV=test node_modules/mocha/bin/mocha --timeout 60000 --bail --compilers coffee:coffee-script $@.coffee
 
 test-cov: build
 	# jscoverage only accepts directory arguments so have to rebuild everything

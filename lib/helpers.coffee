@@ -8,3 +8,5 @@ module.exports =
     instance instanceof EventEmitter and
     instance.pipe? and
     (instance._read? or instance.read? or instance.readable)
+
+  DEFAULT_MAX_LISTENERS: 10
