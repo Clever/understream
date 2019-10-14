@@ -3,7 +3,8 @@ jobs:
   build:
     working_directory: ~/Clever/understream
     docker:
-    - image: circleci/node:8.11.3-stretch
+    - image: circleci/node:10.15.1-stretch
+    - image: circleci/mongo:3.2.20-jessie-ram
     environment:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
@@ -19,3 +20,6 @@ jobs:
     - run:
         command: npm install
         name: npm install
+    - run:
+        command: make test
+        name: make test

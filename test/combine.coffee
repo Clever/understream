@@ -16,6 +16,10 @@ lazy_stream_from_array = (arr) ->
   i = 0
   rs._read = ->
     setImmediate =>
+      data = arr[i]
+      if data is undefined
+        @push null
+        return
       @push arr[i]
       i += 1
   rs

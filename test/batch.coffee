@@ -4,7 +4,7 @@ Understream = require "#{__dirname}/../index"
 
 charRange = (start, stop) ->
   if not stop? then stop = start; start = 0
-  _(_.range(start, stop))
+  _.range(start, stop)
     .map (i) -> 'abcdefghijklmnopqrstuvwxyz'[i]
 
 describe '_.batch(n)', ->

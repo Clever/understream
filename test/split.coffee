@@ -17,7 +17,7 @@ describe '_.split', ->
     ]
     async.forEachSeries test_inputs, (test_input, cb_fe) ->
       new Understream(test_input).split("test").run (err) ->
-        assert err.message.match /non-string\/buffer chunk/
+        assert err.message.match /argument must be one of type string or Buffer/
         cb_fe()
     , done
 

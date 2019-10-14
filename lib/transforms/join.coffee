@@ -106,7 +106,7 @@ class SortedMergeJoin extends Transform
   # Hack to find out if a stream has no more data. This is totally not kosher
   # since it relies on undocumented internals.
   ended = (stream) ->
-    stream._readableState.ended and _.isEmpty stream._readableState.buffer
+    stream._readableState.ended and stream._readableState.buffer.length == 0
 
   constructor: (stream_opts, {@right, @key}) ->
     super stream_opts

@@ -5,7 +5,7 @@ _.mixin require 'underscore.deep'
 debug  = require('debug') 'us:'
 domain = require 'domain'
 {EventEmitter} = require 'events'
-{is_readable} = require './helpers'
+{is_readable, DEFAULT_MAX_LISTENERS} = require './helpers'
 
 # Adds a listener to an EventEmitter but first bumps the max listeners limit
 # for that emitter. The limit is meant to prevent memory leaks, so this should
@@ -14,6 +14,8 @@ domain = require 'domain'
 add_listener_unsafe = (emitter, event, listener) ->
   if emitter._maxListeners?
     emitter.setMaxListeners emitter._maxListeners + 1
+  else
+    emitter._maxListeners = DEFAULT_MAX_LISTENERS + 1
   emitter.addListener event, listener
 
 # Wraps a stream's _transform method in a domain, catching any thrown errors
@@ -92,8 +94,12 @@ class ArrayStream extends Readable
   constructor: (@options, @arr, @index=0) ->
     super _(@options).extend objectMode: true
   _read: (size) =>
-    debug "_read #{size} #{JSON.stringify @arr[@index]}"
-    @push @arr[@index] # Note: push(undefined) signals the end of the stream, so this just works^tm
+    if @index > (@arr.length - 1)
+      @push null
+      return
+    data = @arr[@index]
+    debug "_read #{size} #{JSON.stringify data}"
+    @push data
     @index += 1
 
 class DevNull extends Writable
