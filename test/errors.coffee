@@ -131,7 +131,7 @@ describe '_.stream error handling', ->
             " but found that it increased by #{increase_in_max_listeners}" +
             " (from #{starting_max_listeners} to #{stream._maxListeners})"
           done()
-    describe 'does not crash if there are no maxListeners', ->
+    it 'does not crash if there are no maxListeners', (done) ->
       stream = new Understream([]).stream()
       delete stream._maxListeners
       new_stream = new Understream(stream).each(-> ).run (err) ->
