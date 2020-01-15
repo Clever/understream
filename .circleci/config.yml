@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/Clever/understream
     docker:
-    - image: circleci/node:10.15.1-stretch
+    - image: circleci/node:12-stretch
     - image: circleci/mongo:3.2.20-jessie-ram
     environment:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
