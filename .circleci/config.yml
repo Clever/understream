@@ -3,23 +3,24 @@ jobs:
   build:
     working_directory: ~/Clever/understream
     docker:
-    - image: circleci/node:12-stretch
-    - image: circleci/mongo:3.2.20-jessie-ram
+      - image: circleci/node:12-stretch
+      - image: circleci/mongo:3.2.20-jessie-ram
     environment:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
     steps:
-    - run:
-        command: cd $HOME && git clone --depth 1 -v https://github.com/Clever/ci-scripts.git && cd ci-scripts && git show --oneline -s
-        name: Clone ci-scripts
-    - checkout
-    - setup_remote_docker
-    - run:
-        command: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
-        name: Set up CircleCI artifacts directories
-    - run:
-        command: npm install
-        name: npm install
-    - run:
-        command: make test
-        name: make test
+      - run:
+          command: cd $HOME && git clone --depth 1 -v https://github.com/Clever/ci-scripts.git && cd ci-scripts && git show --oneline -s
+          name: Clone ci-scripts
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
+          name: Set up CircleCI artifacts directories
+      - run:
+          command: npm install
+          name: npm install
+      - run:
+          command: make test
+          name: make test
+      - run: $HOME/ci-scripts/circleci/catalog-sync $CATAPULT_URL $CATAPULT_USER $CATAPULT_PASS understream utility
